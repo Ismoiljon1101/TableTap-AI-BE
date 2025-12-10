@@ -223,7 +223,9 @@ backend/
 
 ## 📝 License
 
-UNLICENSED - Internal use only
+Copyright (c) 2025 Ismoiljon Masharipov. All Rights Reserved.
+
+This software is proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited.
 
 ---
 
