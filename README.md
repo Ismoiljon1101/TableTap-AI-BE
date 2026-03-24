@@ -2,17 +2,31 @@
 
 <div align="center">
   
-  🚀 **Restaurant Order Management System Backend**
+  🚀 **Premium Restaurant Order Management System Backend**
   
-  Built with NestJS, MongoDB, and WebSocket for real-time order updates
+  Built with NestJS, MongoDB, and WebSocket for real-time order updates.
+  
+  **Hardened Core**: Strict TypeScript Mode | Zero `any` Usage | Multi-Layer Type Safety
   
 </div>
 
 ---
 
+## 🛡️ Hardening & Type Safety
+
+This codebase follows strict engineering standards to ensure production-level reliability:
+
+- **Strict TypeScript**: `strict: true`, `noImplicitAny: true`, and `strictNullChecks: true` are enabled.
+- **Zero `any` Policy**: The use of the `any` type is strictly forbidden. All request objects, service parameters, and data models are explicitly typed.
+- **Authenticated Request Layer**: A custom `AuthenticatedRequest` interface extends the standard Express request to provide type-safe access to user and restaurant context.
+- **Atomic DTOs**: Every endpoint is protected by strictly typed Data Transfer Objects (DTOs) with full validation.
+- **Schema-Level Safety**: Mongoose schemas are fully synchronized with TypeScript interfaces using definite assignment assertions.
+
+---
+
 ## 📋 Features
 
-- ✅ **Authentication**: JWT + Google OAuth
+- ✅ **Authentication**: JWT + Google OAuth (Strictly Typed)
 - ✅ **Role-Based Access Control**: Waiter, Owner, Admin roles
 - ✅ **Real-time Updates**: WebSocket integration for live order updates
 - ✅ **Auto-Incrementing Order Numbers**: Per-restaurant order tracking
@@ -38,7 +52,7 @@
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 ```
 
 ---
@@ -46,11 +60,13 @@ npm install
 ## ⚙️ Configuration
 
 1. Copy the example environment file:
+
 ```bash
 cp .env.example .env
 ```
 
-2. Update `.env` with your configuration:
+1. Update `.env` with your configuration:
+
 ```env
 # MongoDB Atlas connection string (or local MongoDB)
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/tabletap
@@ -72,11 +88,13 @@ PORT=3000
 ## 🚀 Running the Application
 
 ### Development Mode
+
 ```bash
 npm run start:dev
 ```
 
 ### Production Mode
+
 ```bash
 # Build
 npm run build
@@ -86,6 +104,7 @@ npm run start:prod
 ```
 
 ### Testing
+
 ```bash
 # Unit tests
 npm run test
@@ -104,6 +123,7 @@ npm run test:cov
 Base URL: `http://localhost:3000/v1`
 
 ### Authentication
+
 - `POST /auth/register` - Register new user + restaurant
 - `POST /auth/login` - Login with email/password
 - `POST /auth/google` - Google OAuth login
@@ -112,12 +132,14 @@ Base URL: `http://localhost:3000/v1`
 - `GET /auth/me` - Get current user profile
 
 ### Restaurants
+
 - `GET /restaurants/:id` - Get restaurant details
 - `PUT /restaurants/:id` - Update restaurant (Owner/Admin)
 - `GET /restaurants/:id/analytics` - Get analytics (Owner/Admin)
 - `DELETE /restaurants/:id` - Delete restaurant (Admin only)
 
 ### Tables
+
 - `POST /tables/batch` - Create multiple tables
 - `POST /tables` - Create single table
 - `GET /tables` - Get all tables for restaurant
@@ -126,6 +148,7 @@ Base URL: `http://localhost:3000/v1`
 - `DELETE /tables/:id` - Delete table
 
 ### Menu
+
 - `POST /menu` - Add menu item (Owner/Admin)
 - `GET /menu` - Get menu items (with filters)
 - `GET /menu/:id` - Get specific menu item
@@ -134,6 +157,7 @@ Base URL: `http://localhost:3000/v1`
 - `DELETE /menu/:id` - Delete menu item (Owner/Admin)
 
 ### Orders
+
 - `POST /orders` - Create new order
 - `GET /orders` - Get all orders (with filters)
 - `GET /orders/today` - Get today's orders
@@ -142,6 +166,7 @@ Base URL: `http://localhost:3000/v1`
 - `PUT /orders/:id/items` - Add items to existing order
 
 ### WebSocket Events
+
 - `joinRestaurant` - Join restaurant room
 - `order-created` - New order notification
 - `order-updated` - Order status changed
@@ -191,6 +216,7 @@ backend/
 ## 🗄️ Database Schema
 
 ### Collections
+
 1. **Users**: User accounts with roles
 2. **Restaurants**: Restaurant details and settings
 3. **Tables**: Table management with status
