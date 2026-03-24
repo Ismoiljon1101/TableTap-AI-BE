@@ -16,10 +16,10 @@ export enum SubscriptionStatus {
 
 class Subscription {
     @Prop({ required: true, enum: SubscriptionPlan, default: SubscriptionPlan.FREE })
-    plan: SubscriptionPlan;
+    plan!: SubscriptionPlan;
 
     @Prop({ required: true, enum: SubscriptionStatus, default: SubscriptionStatus.ACTIVE })
-    status: SubscriptionStatus;
+    status!: SubscriptionStatus;
 
     @Prop({ required: false })
     currentPeriodEnd?: Date;
@@ -27,37 +27,37 @@ class Subscription {
 
 class Settings {
     @Prop({ default: 'USD' })
-    currency: string;
+    currency!: string;
 
     @Prop({ default: 0 })
-    taxRate: number;
+    taxRate!: number;
 
     @Prop({ default: 'UTC' })
-    timezone: string;
+    timezone!: string;
 
     @Prop({ default: false })
-    autoPrint: boolean;
+    autoPrint!: boolean;
 }
 
 @Schema({ timestamps: true })
 export class Restaurant {
     @Prop({ required: true, trim: true })
-    name: string;
+    name!: string;
 
     @Prop({ type: Types.ObjectId, ref: 'User', required: false })
-    ownerId: Types.ObjectId;
+    ownerId?: Types.ObjectId;
 
     @Prop({ type: Subscription, required: true, default: () => ({}) })
-    subscription: Subscription;
+    subscription!: Subscription;
 
     @Prop({ type: Settings, required: true, default: () => ({}) })
-    settings: Settings;
+    settings!: Settings;
 
     @Prop()
-    createdAt: Date;
+    createdAt!: Date;
 
     @Prop()
-    updatedAt: Date;
+    updatedAt!: Date;
 }
 
 export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);

@@ -11,55 +11,55 @@ export enum TableStatus {
 
 class Position {
     @Prop({ required: true, default: 0 })
-    x: number;
+    x!: number;
 
     @Prop({ required: true, default: 0 })
-    y: number;
+    y!: number;
 }
 
 @Schema({ timestamps: true })
 export class Table {
     @Prop({ required: true, trim: true })
-    name: string;
+    name!: string;
 
     @Prop({ type: Types.ObjectId, ref: 'Restaurant', required: true })
-    restaurantId: Types.ObjectId;
+    restaurantId!: Types.ObjectId;
 
     @Prop({ required: false })
-    displayName: string;
+    displayName?: string;
 
     @Prop({ default: 4 })
-    capacity: number;
+    capacity!: number;
 
     @Prop({ required: true, enum: TableStatus, default: TableStatus.AVAILABLE })
-    status: TableStatus;
+    status!: TableStatus;
 
     @Prop({ type: Position, default: () => ({ x: 0, y: 0 }) })
-    position: Position;
+    position!: Position;
 
     @Prop({ default: 0 })
-    rotation: number;
+    rotation!: number;
 
     @Prop({ type: SchemaTypes.Mixed, ref: 'Section' })
-    section: Types.ObjectId | string;
+    section!: Types.ObjectId | string;
 
     @Prop({ default: 100 })
-    width: number;
+    width!: number;
 
     @Prop({ default: 100 })
-    height: number;
+    height!: number;
 
     @Prop({ default: 'rectangle' })
-    shape: string;
+    shape!: string;
 
     @Prop({ type: Types.ObjectId, ref: 'Order', required: false })
     currentOrderId?: Types.ObjectId;
 
     @Prop()
-    createdAt: Date;
+    createdAt!: Date;
 
     @Prop()
-    updatedAt: Date;
+    updatedAt!: Date;
 }
 
 export const TableSchema = SchemaFactory.createForClass(Table);

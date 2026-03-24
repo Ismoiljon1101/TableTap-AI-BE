@@ -13,17 +13,17 @@ import { Type } from 'class-transformer';
 class PositionDto {
     @IsNumber()
     @Min(0)
-    x: number;
+    x!: number;
 
     @IsNumber()
     @Min(0)
-    y: number;
+    y!: number;
 }
 
 export class CreateTableDto {
     @IsString()
     @IsNotEmpty()
-    name: string;
+    name!: string;
 
     @IsString()
     @IsOptional()
@@ -73,7 +73,7 @@ export class CreateTablesDto {
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => CreateTableDto)
-    tables: CreateTableDto[];
+    tables!: CreateTableDto[];
 }
 
 export class UpdateTableDto {

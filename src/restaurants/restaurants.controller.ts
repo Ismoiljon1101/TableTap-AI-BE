@@ -1,9 +1,10 @@
-import { Controller, Get, Put, Delete, Param, Body, UseGuards, Req, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Param, Body, UseGuards, Req, HttpStatus, HttpCode, ForbiddenException } from '@nestjs/common';
 import { RestaurantsService } from './restaurants.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../libs/enums';
+import type { AuthenticatedRequest } from '../auth/interfaces/auth.interface';
 
 @Controller('restaurants')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -12,12 +13,17 @@ export class RestaurantsController {
 
     @Get(':id')
     @HttpCode(HttpStatus.OK)
-    async getRestaurant(@Param('id') id: string, @Req() req: any) {
-        // Ensure user can only access their own restaurant
-        if (req.user.restaurantId !== id && req.user.role !== UserRole.ADMIN) {
-            throw new Error('Unauthorized access to restaurant');
+    async getRestaurant(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+        try {
+            // Ensure user can only access their own restaurant
+            if (req.user.restaurantId !== id && req.user.role !== UserRole.ADMIN) {
+                throw new ForbiddenException('Unauthorized access to restaurant');
+            }
+            return await this.restaurantsService.findById(id);
+        } catch (error) {
+            console.error('Get restaurant error:', error);
+            throw error;
         }
-        return this.restaurantsService.findById(id);
     }
 
     @Put(':id')
@@ -26,29 +32,44 @@ export class RestaurantsController {
     async updateRestaurant(
         @Param('id') id: string,
         @Body() updateData: any,
-        @Req() req: any,
+        @Req() req: AuthenticatedRequest,
     ) {
-        if (req.user.restaurantId !== id && req.user.role !== UserRole.ADMIN) {
-            throw new Error('Unauthorized access to restaurant');
+        try {
+            if (req.user.restaurantId !== id && req.user.role !== UserRole.ADMIN) {
+                throw new ForbiddenException('Unauthorized access to restaurant');
+            }
+            return await this.restaurantsService.update(id, updateData);
+        } catch (error) {
+            console.error('Update restaurant error:', error);
+            throw error;
         }
-        return this.restaurantsService.update(id, updateData);
     }
 
     @Get(':id/analytics')
     @Roles(UserRole.OWNER, UserRole.ADMIN)
     @HttpCode(HttpStatus.OK)
-    async getAnalytics(@Param('id') id: string, @Req() req: any) {
-        if (req.user.restaurantId !== id && req.user.role !== UserRole.ADMIN) {
-            throw new Error('Unauthorized access to analytics');
+    async getAnalytics(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+        try {
+            if (req.user.restaurantId !== id && req.user.role !== UserRole.ADMIN) {
+                throw new ForbiddenException('Unauthorized access to analytics');
+            }
+            return await this.restaurantsService.getAnalytics(id);
+        } catch (error) {
+            console.error('Get analytics error:', error);
+            throw error;
         }
-        return this.restaurantsService.getAnalytics(id);
     }
 
     @Delete(':id')
     @Roles(UserRole.ADMIN)
     @HttpCode(HttpStatus.OK)
     async deleteRestaurant(@Param('id') id: string) {
-        const deleted = await this.restaurantsService.delete(id);
-        return { deleted, message: 'Restaurant deleted successfully' };
+        try {
+            const deleted = await this.restaurantsService.delete(id);
+            return { deleted, message: 'Restaurant deleted successfully' };
+        } catch (error) {
+            console.error('Delete restaurant error:', error);
+            throw error;
+        }
     }
 }
