@@ -6,17 +6,17 @@ export class RegisterDto {
     @IsEmail()
     @IsNotEmpty()
     @Transform(({ value }) => value.toLowerCase().trim())
-    email: string;
+    email!: string;
 
     @IsString()
     @MinLength(6)
     @IsNotEmpty()
-    password: string;
+    password!: string;
 
     @IsString()
     @IsNotEmpty()
     @Transform(({ value }) => value.trim())
-    nickname: string;
+    nickname!: string;
 
     @IsString()
     @IsOptional()
@@ -39,27 +39,27 @@ export class LoginDto {
     @IsEmail()
     @IsNotEmpty()
     @Transform(({ value }) => value.toLowerCase().trim())
-    email: string;
+    email!: string;
 
     @IsString()
     @IsNotEmpty()
-    password: string;
+    password!: string;
 }
 
 export class GoogleAuthDto {
     @IsString()
     @IsNotEmpty()
-    googleId: string;
+    googleId!: string;
 
     @IsEmail()
     @IsNotEmpty()
     @Transform(({ value }) => value.toLowerCase().trim())
-    email: string;
+    email!: string;
 
     @IsString()
     @IsNotEmpty()
     @Transform(({ value }) => value.trim())
-    nickname: string;
+    nickname!: string;
 
     @IsMongoId()
     @IsOptional()

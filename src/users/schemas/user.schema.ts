@@ -18,13 +18,13 @@ export class User {
             message: 'Invalid email format'
         }
     })
-    email: string;
+    email!: string;
 
     @Prop({ required: false })
     passwordHash?: string;
 
     @Prop({ required: true, trim: true })
-    nickname: string;
+    nickname!: string;
 
     @Prop({
         required: true,
@@ -39,22 +39,22 @@ export class User {
             message: (props: any) => `${props.value} is not a valid role. Must be one of: ${Object.values(UserRole).join(', ')}`
         }
     })
-    role: UserRole;
+    role!: UserRole;
 
     @Prop({ type: Types.ObjectId, ref: 'Restaurant', required: true })
-    restaurantId: Types.ObjectId;
+    restaurantId!: Types.ObjectId;
 
     @Prop({ required: false })
     googleId?: string;
 
     @Prop({ default: true })
-    isActive: boolean;
+    isActive!: boolean;
 
     @Prop()
-    createdAt: Date;
+    createdAt!: Date;
 
     @Prop()
-    updatedAt: Date;
+    updatedAt!: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
