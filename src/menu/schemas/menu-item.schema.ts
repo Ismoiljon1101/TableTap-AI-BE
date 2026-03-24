@@ -7,48 +7,48 @@ export type MenuItemDocument = MenuItem & Document;
 
 class ModifierOption {
     @Prop({ required: true })
-    name: string;
+    name!: string;
 
     @Prop({ required: true, default: 0 })
-    price: number;
+    price!: number;
 }
 
 class Modifier {
     @Prop({ required: true })
-    name: string;
+    name!: string;
 
     @Prop({ type: [ModifierOption], default: [] })
-    options: ModifierOption[];
+    options!: ModifierOption[];
 }
 
 @Schema({ timestamps: true })
 export class MenuItem {
     @Prop({ type: Types.ObjectId, ref: 'Restaurant', required: true })
-    restaurantId: Types.ObjectId;
+    restaurantId!: Types.ObjectId;
 
     @Prop({ required: true, trim: true })
-    name: string;
+    name!: string;
 
     @Prop({ required: true, min: 0 })
-    price: number;
+    price!: number;
 
     @Prop({ type: Types.ObjectId, ref: 'Category', required: true })
-    category: Types.ObjectId;
+    category!: Types.ObjectId;
 
     @Prop({ default: true })
-    isAvailable: boolean;
+    isAvailable!: boolean;
 
     @Prop({ default: false })
-    isPopular: boolean;
+    isPopular!: boolean;
 
     @Prop({ type: [Modifier], default: [] })
-    modifiers: Modifier[];
+    modifiers!: Modifier[];
 
     @Prop()
-    createdAt: Date;
+    createdAt!: Date;
 
     @Prop()
-    updatedAt: Date;
+    updatedAt!: Date;
 }
 
 export const MenuItemSchema = SchemaFactory.createForClass(MenuItem);

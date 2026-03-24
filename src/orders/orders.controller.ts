@@ -6,6 +6,7 @@ import { CreateOrderDto, UpdateOrderStatusDto, AddOrderItemsDto } from './dto/or
 import { OrderStatus } from './schemas/order.schema';
 import { TablesService } from '../tables/tables.service';
 import { TableStatus } from '../tables/schemas/table.schema';
+import type { AuthenticatedRequest } from '../auth/interfaces/auth.interface';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
@@ -18,7 +19,7 @@ export class OrdersController {
 
     @Post()
     @HttpCode(HttpStatus.CREATED)
-    async create(@Body() createOrderDto: CreateOrderDto, @Req() req: any) {
+    async create(@Body() createOrderDto: CreateOrderDto, @Req() req: AuthenticatedRequest) {
         try {
             console.log('📋 Creating order with data:', JSON.stringify({
                 restaurantId: req.user.restaurantId,
@@ -51,7 +52,7 @@ export class OrdersController {
 
             console.log('✅ Order created successfully:', order.orderNumber);
             return order;
-        } catch (error) {
+        } catch (error: any) {
             console.error('❌ Error creating order:', error);
             console.error('Error details:', {
                 message: error.message,
@@ -65,28 +66,43 @@ export class OrdersController {
     @Get()
     @HttpCode(HttpStatus.OK)
     async findAll(
-        @Req() req: any,
+        @Req() req: AuthenticatedRequest,
         @Query('status') status?: OrderStatus,
         @Query('tableId') tableId?: string,
         @Query('startDate') startDate?: string,
         @Query('endDate') endDate?: string,
     ) {
-        const start = startDate ? new Date(startDate) : undefined;
-        const end = endDate ? new Date(endDate) : undefined;
+        try {
+            const start = startDate ? new Date(startDate) : undefined;
+            const end = endDate ? new Date(endDate) : undefined;
 
-        return this.ordersService.findAll(req.user.restaurantId, status, tableId, start, end);
+            return await this.ordersService.findAll(req.user.restaurantId, status, tableId, start, end);
+        } catch (error) {
+            console.error('Find all orders error:', error);
+            throw error;
+        }
     }
 
     @Get('today')
     @HttpCode(HttpStatus.OK)
-    async getTodayOrders(@Req() req: any) {
-        return this.ordersService.getOrdersByDate(req.user.restaurantId, new Date());
+    async getTodayOrders(@Req() req: AuthenticatedRequest) {
+        try {
+            return await this.ordersService.getOrdersByDate(req.user.restaurantId, new Date());
+        } catch (error) {
+            console.error('Get today orders error:', error);
+            throw error;
+        }
     }
 
     @Get(':id')
     @HttpCode(HttpStatus.OK)
     async findOne(@Param('id') id: string) {
-        return this.ordersService.findById(id);
+        try {
+            return await this.ordersService.findById(id);
+        } catch (error) {
+            console.error('Find one order error:', error);
+            throw error;
+        }
     }
 
     @Put(':id/status')
@@ -94,21 +110,26 @@ export class OrdersController {
     async updateStatus(
         @Param('id') id: string,
         @Body() updateOrderStatusDto: UpdateOrderStatusDto,
-        @Req() req: any,
+        @Req() req: AuthenticatedRequest,
     ) {
-        const order = await this.ordersService.updateStatus(id, updateOrderStatusDto.status);
+        try {
+            const order = await this.ordersService.updateStatus(id, updateOrderStatusDto.status);
 
-        if (order) {
-            // Emit real-time event
-            this.ordersGateway.emitOrderUpdated(req.user.restaurantId, order);
+            if (order) {
+                // Emit real-time event
+                this.ordersGateway.emitOrderUpdated(req.user.restaurantId, order);
 
-            // If order is served, update table status
-            if (updateOrderStatusDto.status === OrderStatus.SERVED) {
-                await this.tablesService.updateStatus(order.tableId, TableStatus.AVAILABLE);
+                // If order is served, update table status
+                if (updateOrderStatusDto.status === OrderStatus.SERVED) {
+                    await this.tablesService.updateStatus(order.tableId, TableStatus.AVAILABLE);
+                }
             }
-        }
 
-        return order;
+            return order;
+        } catch (error) {
+            console.error('Update order status error:', error);
+            throw error;
+        }
     }
 
     @Put(':id/items')
@@ -116,14 +137,19 @@ export class OrdersController {
     async addItems(
         @Param('id') id: string,
         @Body() addOrderItemsDto: AddOrderItemsDto,
-        @Req() req: any,
+        @Req() req: AuthenticatedRequest,
     ) {
-        const order = await this.ordersService.addItems(id, addOrderItemsDto.items);
+        try {
+            const order = await this.ordersService.addItems(id, addOrderItemsDto.items);
 
-        if (order) {
-            this.ordersGateway.emitOrderUpdated(req.user.restaurantId, order);
+            if (order) {
+                this.ordersGateway.emitOrderUpdated(req.user.restaurantId, order);
+            }
+
+            return order;
+        } catch (error) {
+            console.error('Add items to order error:', error);
+            throw error;
         }
-
-        return order;
     }
 }

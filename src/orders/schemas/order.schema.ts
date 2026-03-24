@@ -25,75 +25,75 @@ export enum OrderItemStatus {
 
 class ItemModifier {
     @Prop({ required: true })
-    name: string;
+    name!: string;
 
     @Prop({ required: true })
-    option: string;
+    option!: string;
 
     @Prop({ required: true, default: 0 })
-    price: number;
+    price!: number;
 }
 
 class OrderItem {
     @Prop({ type: Types.ObjectId, ref: 'MenuItem', required: true })
-    menuItemId: Types.ObjectId;
+    menuItemId!: Types.ObjectId;
 
     @Prop({ required: true })
-    name: string;
+    name!: string;
 
     @Prop({ required: true, min: 1 })
-    quantity: number;
+    quantity!: number;
 
     @Prop({ required: true, min: 0 })
-    unitPrice: number;
+    unitPrice!: number;
 
     @Prop({ type: [ItemModifier], default: [] })
-    modifiers: ItemModifier[];
+    modifiers!: ItemModifier[];
 
     @Prop({ required: false })
     notes?: string;
 
     @Prop({ required: true, enum: OrderItemStatus, default: OrderItemStatus.PENDING })
-    status: OrderItemStatus;
+    status!: OrderItemStatus;
 }
 
 @Schema({ timestamps: true })
 export class Order {
     @Prop({ required: true })
-    orderNumber: number;
+    orderNumber!: number;
 
     @Prop({ type: Types.ObjectId, ref: 'Restaurant', required: true })
-    restaurantId: Types.ObjectId;
+    restaurantId!: Types.ObjectId;
 
     @Prop({ type: Types.ObjectId, ref: 'Table', required: true })
-    tableId: Types.ObjectId;
+    tableId!: Types.ObjectId;
 
     @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-    waiterId: Types.ObjectId;
+    waiterId!: Types.ObjectId;
 
     @Prop({ type: [OrderItem], required: true })
-    items: OrderItem[];
+    items!: OrderItem[];
 
     @Prop({ required: true, min: 0 })
-    subtotal: number;
+    subtotal!: number;
 
     @Prop({ required: true, min: 0, default: 0 })
-    tax: number;
+    tax!: number;
 
     @Prop({ required: true, min: 0 })
-    total: number;
+    total!: number;
 
     @Prop({ required: true, enum: PaymentStatus, default: PaymentStatus.UNPAID })
-    paymentStatus: PaymentStatus;
+    paymentStatus!: PaymentStatus;
 
     @Prop({ required: true, enum: OrderStatus, default: OrderStatus.PENDING })
-    status: OrderStatus;
+    status!: OrderStatus;
 
     @Prop()
-    createdAt: Date;
+    createdAt!: Date;
 
     @Prop()
-    updatedAt: Date;
+    updatedAt!: Date;
 
     @Prop({ required: false })
     servedAt?: Date;

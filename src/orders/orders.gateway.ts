@@ -11,7 +11,7 @@ import { UseGuards } from '@nestjs/common';
 @WebSocketGateway({ cors: { origin: '*' } })
 export class OrdersGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
-    server: Server;
+    server!: Server;
 
     handleConnection(client: Socket) {
         console.log(`Client connected: ${client.id}`);

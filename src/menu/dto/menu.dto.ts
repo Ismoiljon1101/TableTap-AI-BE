@@ -16,36 +16,36 @@ import { Type } from 'class-transformer';
 class ModifierOptionDto {
     @IsString()
     @IsNotEmpty()
-    name: string;
+    name!: string;
 
     @IsNumber()
     @Min(0)
-    price: number;
+    price!: number;
 }
 
 class ModifierDto {
     @IsString()
     @IsNotEmpty()
-    name: string;
+    name!: string;
 
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ModifierOptionDto)
-    options: ModifierOptionDto[];
+    options!: ModifierOptionDto[];
 }
 
 export class CreateMenuItemDto {
     @IsString()
     @IsNotEmpty()
-    name: string;
+    name!: string;
 
     @IsNumber()
     @Min(0)
-    price: number;
+    price!: number;
 
     @IsMongoId()
     @IsNotEmpty()
-    category: string;
+    category!: string;
 
     @IsBoolean()
     @IsOptional()

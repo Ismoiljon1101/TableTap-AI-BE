@@ -9,13 +9,13 @@ export class OrderCounter {
     // We use it in format: "restaurantId_order"
 
     @Prop({ type: String })
-    _id: string;
+    _id!: string;
 
     @Prop({ required: true, default: 0 })
-    sequence: number;
+    sequence!: number;
 
     @Prop({ type: Date, default: Date.now })
-    updatedAt: Date;
+    updatedAt!: Date;
 }
 
 export const OrderCounterSchema = SchemaFactory.createForClass(OrderCounter);

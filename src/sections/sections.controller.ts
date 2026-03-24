@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } fro
 import { SectionsService } from './sections.service';
 import { CreateSectionDto, UpdateSectionDto } from './dto/section.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../auth/interfaces/auth.interface';
 
 @Controller('sections')
 @UseGuards(JwtAuthGuard)
@@ -9,27 +10,52 @@ export class SectionsController {
     constructor(private readonly sectionsService: SectionsService) { }
 
     @Post()
-    create(@Req() req: any, @Body() createSectionDto: CreateSectionDto) {
-        return this.sectionsService.create(req.user.restaurantId, createSectionDto);
+    async create(@Req() req: AuthenticatedRequest, @Body() createSectionDto: CreateSectionDto) {
+        try {
+            return await this.sectionsService.create(req.user.restaurantId, createSectionDto);
+        } catch (error) {
+            console.error('Create section error:', error);
+            throw error;
+        }
     }
 
     @Get()
-    findAll(@Req() req: any) {
-        return this.sectionsService.findAll(req.user.restaurantId);
+    async findAll(@Req() req: AuthenticatedRequest) {
+        try {
+            return await this.sectionsService.findAll(req.user.restaurantId);
+        } catch (error) {
+            console.error('Find all sections error:', error);
+            throw error;
+        }
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.sectionsService.findOne(id);
+    async findOne(@Param('id') id: string) {
+        try {
+            return await this.sectionsService.findOne(id);
+        } catch (error) {
+            console.error('Find one section error:', error);
+            throw error;
+        }
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateSectionDto: UpdateSectionDto) {
-        return this.sectionsService.update(id, updateSectionDto);
+    async update(@Param('id') id: string, @Body() updateSectionDto: UpdateSectionDto) {
+        try {
+            return await this.sectionsService.update(id, updateSectionDto);
+        } catch (error) {
+            console.error('Update section error:', error);
+            throw error;
+        }
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.sectionsService.remove(id);
+    async remove(@Param('id') id: string) {
+        try {
+            return await this.sectionsService.remove(id);
+        } catch (error) {
+            console.error('Remove section error:', error);
+            throw error;
+        }
     }
 }

@@ -76,7 +76,7 @@ export class OrdersService {
             });
 
             return savedOrder;
-        } catch (error) {
+        } catch (error: any) {
             console.error('❌ Error in OrdersService.create:', error);
             console.error('Error stack:', error.stack);
             console.error('DTO received:', JSON.stringify(createOrderDto, null, 2));

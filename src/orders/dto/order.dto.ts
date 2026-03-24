@@ -15,32 +15,32 @@ import { OrderStatus, OrderItemStatus } from '../schemas/order.schema';
 class ItemModifierDto {
     @IsString()
     @IsNotEmpty()
-    name: string;
+    name!: string;
 
     @IsString()
     @IsNotEmpty()
-    option: string;
+    option!: string;
 
     @IsNumber()
     @Min(0)
-    price: number;
+    price!: number;
 }
 
 export class OrderItemDto {
     @IsMongoId()
-    menuItemId: string;
+    menuItemId!: string;
 
     @IsString()
     @IsNotEmpty()
-    name: string;
+    name!: string;
 
     @IsNumber()
     @Min(1)
-    quantity: number;
+    quantity!: number;
 
     @IsNumber()
     @Min(0)
-    unitPrice: number;
+    unitPrice!: number;
 
     @IsArray()
     @ValidateNested({ each: true })
@@ -55,30 +55,30 @@ export class OrderItemDto {
 
 export class CreateOrderDto {
     @IsMongoId()
-    tableId: string;
+    tableId!: string;
 
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => OrderItemDto)
-    items: OrderItemDto[];
+    items!: OrderItemDto[];
 }
 
 export class UpdateOrderStatusDto {
     @IsEnum(OrderStatus)
-    status: OrderStatus;
+    status!: OrderStatus;
 }
 
 export class UpdateOrderItemStatusDto {
     @IsMongoId()
-    itemId: string;
+    itemId!: string;
 
     @IsEnum(OrderItemStatus)
-    status: OrderItemStatus;
+    status!: OrderItemStatus;
 }
 
 export class AddOrderItemsDto {
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => OrderItemDto)
-    items: OrderItemDto[];
+    items!: OrderItemDto[];
 }
