@@ -74,8 +74,8 @@ const TABLES: SeedTable[] = [
     { name: 'TR-4', displayName: 'Terrace 4', code: 'R4', capacity: 2, status: 'occupied',  positionX: 5, positionY: 0,  width: 1, height: 1, shape: 'circle',    rotation: 0, sectionCode: 'TR' },
 
     // VIP Lounge — upper area
-    { name: 'VIP-1', displayName: 'VIP 1', code: 'V1', capacity: 8, status: 'available', positionX: -2, positionY: 6, width: 2, height: 2, shape: 'rectangle', rotation: 0, sectionCode: 'VIP' },
-    { name: 'VIP-2', displayName: 'VIP 2', code: 'V2', capacity: 6, status: 'reserved',  positionX:  2, positionY: 6, width: 2, height: 2, shape: 'rectangle', rotation: 0, sectionCode: 'VIP' },
+    { name: 'VIP-1', displayName: 'VIP 1', code: 'V1', capacity: 8, status: 'available', positionX: -2, positionY: 6, width: 4, height: 1, shape: 'rectangle', rotation: 0, sectionCode: 'VIP' },
+    { name: 'VIP-2', displayName: 'VIP 2', code: 'V2', capacity: 6, status: 'reserved',  positionX:  2, positionY: 6, width: 3, height: 1, shape: 'rectangle', rotation: 0, sectionCode: 'VIP' },
 ];
 
 async function seed() {
