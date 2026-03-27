@@ -5,18 +5,17 @@ import {
     IsOptional,
     IsArray,
     ValidateNested,
-    Min,
     Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class PositionDto {
+    /** X coordinate — negative = left of origin, positive = right */
     @IsNumber()
-    @Min(0)
     x!: number;
 
+    /** Y coordinate — negative = below origin, positive = above */
     @IsNumber()
-    @Min(0)
     y!: number;
 }
 
@@ -29,8 +28,11 @@ export class CreateTableDto {
     @IsOptional()
     displayName?: string;
 
+    @IsString()
+    @IsOptional()
+    code?: string;
+
     @IsNumber()
-    @Min(1)
     @Max(20)
     @IsOptional()
     capacity?: number;
@@ -48,18 +50,22 @@ export class CreateTableDto {
     @IsOptional()
     section?: string;
 
+    /** Flat x coordinate (alternative to position.x) */
     @IsNumber()
     @IsOptional()
     x?: number;
 
+    /** Flat y coordinate (alternative to position.y) */
     @IsNumber()
     @IsOptional()
     y?: number;
 
+    /** Width in grid units (1=small, 2=standard, 3=large) */
     @IsNumber()
     @IsOptional()
     width?: number;
 
+    /** Height in grid units */
     @IsNumber()
     @IsOptional()
     height?: number;
@@ -85,8 +91,11 @@ export class UpdateTableDto {
     @IsOptional()
     displayName?: string;
 
+    @IsString()
+    @IsOptional()
+    code?: string;
+
     @IsNumber()
-    @Min(1)
     @Max(20)
     @IsOptional()
     capacity?: number;
@@ -112,10 +121,12 @@ export class UpdateTableDto {
     @IsOptional()
     y?: number;
 
+    /** Width in grid units (1=small, 2=standard, 3=large) */
     @IsNumber()
     @IsOptional()
     width?: number;
 
+    /** Height in grid units */
     @IsNumber()
     @IsOptional()
     height?: number;

@@ -21,12 +21,9 @@ export class SectionsController {
 
     @Get()
     async findAll(@Req() req: AuthenticatedRequest) {
-        try {
-            return await this.sectionsService.findAll(req.user.restaurantId);
-        } catch (error) {
-            console.error('Find all sections error:', error);
-            throw error;
-        }
+        const rid = req.user.restaurantId;
+        console.log(`[SectionsController] GET /sections - User: ${req.user.email}, Restaurant: ${rid}`);
+        return this.sectionsService.findAll(rid);
     }
 
     @Get(':id')

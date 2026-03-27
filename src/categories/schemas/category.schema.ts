@@ -11,6 +11,9 @@ export class Category {
     @Prop({ type: Types.ObjectId, ref: 'Restaurant', required: true })
     restaurantId!: Types.ObjectId;
 
+    @Prop({ trim: true })
+    code?: string;
+
     @Prop()
     createdAt!: Date;
 

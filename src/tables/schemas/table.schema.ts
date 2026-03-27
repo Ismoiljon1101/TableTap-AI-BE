@@ -28,6 +28,10 @@ export class Table {
     @Prop({ required: false })
     displayName?: string;
 
+    /** Short unique code for quick reference (e.g. 'T1', 'VIP-2') */
+    @Prop({ trim: true })
+    code?: string;
+
     @Prop({ default: 4 })
     capacity!: number;
 
@@ -43,10 +47,12 @@ export class Table {
     @Prop({ type: SchemaTypes.Mixed, ref: 'Section' })
     section!: Types.ObjectId | string;
 
-    @Prop({ default: 100 })
+    /** Width in grid units. 1 unit = CELL_SIZE_PX pixels on the canvas. */
+    @Prop({ default: 2 })
     width!: number;
 
-    @Prop({ default: 100 })
+    /** Height in grid units. 1 unit = CELL_SIZE_PX pixels on the canvas. */
+    @Prop({ default: 1 })
     height!: number;
 
     @Prop({ default: 'rectangle' })

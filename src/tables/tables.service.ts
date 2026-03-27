@@ -10,11 +10,26 @@ export class TablesService {
         @InjectModel(Table.name) private tableModel: Model<TableDocument>,
     ) { }
 
+    /**
+     * Calculates the default grid position for the next new table.
+     * Pattern: (3,0), (6,0), (9,0), (12,0), then (3,3), (6,3)...
+     * 4 columns per row, spaced 3 grid units apart.
+     */
+    private async calcDefaultPosition(restaurantId: string | Types.ObjectId): Promise<{ x: number; y: number }> {
+        const COLS = 4;
+        const STEP = 3;
+        const count = await this.tableModel.countDocuments({ restaurantId }).exec();
+        const col = count % COLS;
+        const row = Math.floor(count / COLS);
+        return { x: (col + 1) * STEP, y: row * STEP };
+    }
+
     async create(restaurantId: string | Types.ObjectId, tableData: CreateTableDto): Promise<TableDocument> {
-        const position = {
-            x: tableData.x !== undefined ? tableData.x : (tableData.position?.x || 0),
-            y: tableData.y !== undefined ? tableData.y : (tableData.position?.y || 0),
-        };
+        // Use caller-provided position if specified, otherwise auto-calculate
+        const hasPosition = tableData.position || tableData.x !== undefined || tableData.y !== undefined;
+        const position = hasPosition
+            ? { x: tableData.x ?? tableData.position?.x ?? 0, y: tableData.y ?? tableData.position?.y ?? 0 }
+            : await this.calcDefaultPosition(restaurantId);
 
         const table = new this.tableModel({
             ...tableData,
@@ -44,7 +59,10 @@ export class TablesService {
     }
 
     async findAll(restaurantId: string | Types.ObjectId): Promise<TableDocument[]> {
-        return this.tableModel.find({ restaurantId }).exec();
+        const rid = typeof restaurantId === 'string' ? new Types.ObjectId(restaurantId) : restaurantId;
+        const tables = await this.tableModel.find({ restaurantId: rid }).exec();
+        console.log(`[TablesService] Found ${tables.length} tables for restaurant: ${rid}`);
+        return tables;
     }
 
     async findById(id: string | Types.ObjectId): Promise<TableDocument | null> {

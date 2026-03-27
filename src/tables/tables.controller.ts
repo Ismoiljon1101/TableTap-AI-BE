@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Req, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Patch, Param, Delete, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { TablesService } from './tables.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateTableDto, CreateTablesDto, UpdateTableDto } from './dto/table.dto';
@@ -34,12 +34,9 @@ export class TablesController {
     @Get()
     @HttpCode(HttpStatus.OK)
     async findAll(@Req() req: AuthenticatedRequest) {
-        try {
-            return await this.tablesService.findAll(req.user.restaurantId);
-        } catch (error) {
-            console.error('Find all tables error:', error);
-            throw error;
-        }
+        const rid = req.user.restaurantId;
+        console.log(`[TablesController] GET /tables - User: ${req.user.email}, Restaurant: ${rid}`);
+        return this.tablesService.findAll(rid);
     }
 
     @Get(':id')
@@ -60,6 +57,18 @@ export class TablesController {
             return await this.tablesService.update(id, updateTableDto);
         } catch (error) {
             console.error('Update table error:', error);
+            throw error;
+        }
+    }
+
+    /** PATCH — partial update (e.g. position-only during drag-and-drop) */
+    @Patch(':id')
+    @HttpCode(HttpStatus.OK)
+    async patch(@Param('id') id: string, @Body() updateTableDto: UpdateTableDto) {
+        try {
+            return await this.tablesService.update(id, updateTableDto);
+        } catch (error) {
+            console.error('Patch table error:', error);
             throw error;
         }
     }

@@ -11,6 +11,10 @@ export class Section {
     @Prop({ type: Types.ObjectId, ref: 'Restaurant', required: true })
     restaurantId!: Types.ObjectId;
 
+    /** Short unique code for identification (e.g. 'GARDEN', 'VIP') */
+    @Prop({ trim: true })
+    code?: string;
+
     @Prop()
     createdAt!: Date;
 

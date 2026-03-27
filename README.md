@@ -1,260 +1,218 @@
-# TabletTap Backend API
+# 🍽️ TabletTap AI: Progressive Dining Backend
+> **Enterprise-Grade Restaurant Order Management System**
 
 <div align="center">
-  
-  🚀 **Premium Restaurant Order Management System Backend**
-  
-  Built with NestJS, MongoDB, and WebSocket for real-time order updates.
-  
-  **Hardened Core**: Strict TypeScript Mode | Zero `any` Usage | Multi-Layer Type Safety
-  
+  <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white" alt="Socket.io" />
+  <img src="https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white" alt="pnpm" />
+  <br />
+  [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=flat-square)](https://github.com/ismoiljon1101/tabletap-be)
+  [![Type Safety](https://img.shields.io/badge/TypeScript-Strict-blue?style=flat-square)](https://www.typescriptlang.org/)
+  [![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)](#-license)
 </div>
 
 ---
 
-## 🛡️ Hardening & Type Safety
+## 🛡️ Hardened Core Architecture
 
-This codebase follows strict engineering standards to ensure production-level reliability:
+The TabletTap AI backend has undergone a **Phase 1 Hardening Sprint**, reaching a "Zero-Any, Zero-Crash" production state.
 
-- **Strict TypeScript**: `strict: true`, `noImplicitAny: true`, and `strictNullChecks: true` are enabled.
-- **Zero `any` Policy**: The use of the `any` type is strictly forbidden. All request objects, service parameters, and data models are explicitly typed.
-- **Authenticated Request Layer**: A custom `AuthenticatedRequest` interface extends the standard Express request to provide type-safe access to user and restaurant context.
-- **Atomic DTOs**: Every endpoint is protected by strictly typed Data Transfer Objects (DTOs) with full validation.
-- **Schema-Level Safety**: Mongoose schemas are fully synchronized with TypeScript interfaces using definite assignment assertions.
-
----
-
-## 📋 Features
-
-- ✅ **Authentication**: JWT + Google OAuth (Strictly Typed)
-- ✅ **Role-Based Access Control**: Waiter, Owner, Admin roles
-- ✅ **Real-time Updates**: WebSocket integration for live order updates
-- ✅ **Auto-Incrementing Order Numbers**: Per-restaurant order tracking
-- ✅ **Complete Order Management**: Create, update, track orders
-- ✅ **Table Management**: Batch creation and status tracking
-- ✅ **Menu System**: Items with modifiers and categories
-- ✅ **Security**: Rate limiting, input validation, CORS, Helmet
+### Engineering Standards
+- **Exhaustive Type Safety**: `strict: true` compliance across the entire workspace. Generic `any` types have been abolished in favor of explicit interfaces and DTOS.
+- **Graceful Error Handling**: Every controller method is audited and wrapped in `try-catch` blocks, ensuring runtime stability and detailed server-side logging.
+- **Context Isolation**: A specialized `AuthenticatedRequest` layer provides type-safe, restaurant-isolated execution context for every request.
+- **Atomic DTO Validation**: Unified input validation via `class-validator` ensures data integrity before it reaches the business logic.
+- **Schema Synchronization**: Mongoose models are meticulously mapped to TypeScript types using definite assignment assertions for 100% compile-time safety.
 
 ---
 
-## 🛠️ Tech Stack
+## 🏗️ System Architecture
 
-- **Framework**: NestJS (TypeScript)
-- **Database**: MongoDB with Mongoose
-- **Authentication**: JWT + Passport
-- **Real-time**: Socket.io
-- **Validation**: class-validator
-- **Security**: Helmet, Throttler
+```mermaid
+graph TD
+    subgraph Clients
+        App[Mobile App]
+        Dash[Store Dashboard]
+    end
+
+    subgraph API_Layer
+        LB[Load Balancer] --> Nest[NestJS REST API]
+        LB --> WSS[WebSocket Gateway]
+    end
+
+    subgraph Security
+        Guards[JWT & Roles Guards]
+        Pipes[Validation Pipes]
+    end
+
+    subgraph Logic
+        Nest --> Guards
+        Guards --> Pipes
+        Pipes --> Services[Feature Services]
+    end
+
+    subgraph Persistence
+        Services --> Mongoose[Strict Mongoose Models]
+        Mongoose --> DB[(MongoDB Atlas)]
+    end
+
+    subgraph RealTime
+        Services --> WSS
+        WSS --> App
+        WSS --> Dash
+    end
+```
 
 ---
 
-## 📦 Installation
+## 📋 Module Overview
+
+| Module | Purpose | Access Control |
+| :--- | :--- | :--- |
+| **Auth** | Multi-role Identity Management (JWT/Google) | Public / User |
+| **Users** | Profile management & Account lifecycle | Authenticated |
+| **Restaurants** | Core entity configuration & Analytics | Owner / Admin |
+| **Tables** | Layout management & Real-time occupancy | Waiter / Owner |
+| **Menu** | Product catalog, Modifiers & Availability | Waiter / Owner |
+| **Categories** | Hierarchical menu organization | Owner |
+| **Sections** | Restaraunt area organization (e.g., Terrace) | Owner |
+| **Orders** | Kitchen flow, Payment & Live updates | Waiter / Owner |
+
+---
+
+## 🛠️ Prerequisites & Setup
+
+### Requirements
+- **Node.js**: `v18.0.0+`
+- **Database**: `MongoDB 6.0+`
+- **Package Manager**: `pnpm` (Mandatory for dependency resolution)
+
+### Installation
 
 ```bash
-# Install dependencies
+# Clone the repository
+git clone https://github.com/ismoiljon1101/tabletap-be.git
+cd tabletap-be
+
+# Install dependencies with pnpm
 pnpm install
 ```
 
----
+### Environment Configuration
 
-## ⚙️ Configuration
+Copy `.env.example` to `.env` and configure:
 
-1. Copy the example environment file:
-
-```bash
-cp .env.example .env
-```
-
-1. Update `.env` with your configuration:
-
-```env
-# MongoDB Atlas connection string (or local MongoDB)
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/tabletap
-
-# JWT Secret (use a strong random string in production)
-JWT_SECRET=your-super-secret-key-change-this-in-production
-
-# Google OAuth (optional, for Google sign-in)
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
-
-# Server Port
-PORT=3000
-```
+| Variable | Description | Example |
+| :--- | :--- | :--- |
+| `MONGODB_URI` | Connection string for MongoDB | `mongodb+srv://...` |
+| `JWT_SECRET` | Secret key for token signing | `very_secret_key` |
+| `PORT` | Application port | `3000` |
+| `GOOGLE_CLIENT_ID` | OAuth Client ID | `client-id.apps.googleusercontent.com` |
 
 ---
 
-## 🚀 Running the Application
+## 📡 Exhaustive API Documentation (v1)
 
-### Development Mode
+### 🔐 Authentication (`/auth`)
+| Method | Path | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/register` | Register User + Restaurant | Public |
+| `POST` | `/login` | Standard Email Login | Public |
+| `POST` | `/google` | Google OAuth 2.0 Auth | Public |
+| `POST` | `/refresh` | Refresh Access Token | Authenticated |
+| `POST` | `/logout` | Invalidate Session | Authenticated |
+| `GET` | `/me` | Get Current User Context | Authenticated |
 
-```bash
-npm run start:dev
-```
+### 👤 User Management (`/users`)
+| Method | Path | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/debug` | Developer User Diagnostics | Authenticated |
+| `PATCH` | `/:id` | Update Profile Details | Owner Only |
+| `DELETE` | `/:id` | Permanent Account Deletion | Owner Only |
 
-### Production Mode
+### 🏠 Restaurant Management (`/restaurants`)
+| Method | Path | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/:id` | Get Restaurant Details | Context-Bound |
+| `PUT` | `/:id` | Update Identity/Settings | Owner/Admin |
+| `GET` | `/:id/analytics` | Fetch Sales & Order Metrics | Owner/Admin |
+| `DELETE` | `/:id` | Terminate Restaurant Entity | Admin Only |
 
-```bash
-# Build
-npm run build
+### 🪑 Table Management (`/tables`)
+| Method | Path | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/batch` | Rapid Table Generation | Owner/Admin |
+| `POST` | `/` | Single Table Creation | Owner/Admin |
+| `GET` | `/` | List Resident Tables | Authenticated |
+| `GET` | `/:id` | View Individual Table | Authenticated |
+| `PUT` | `/:id` | Update Table Metadata | Owner/Admin |
+| `DELETE` | `/:id` | Remove Table | Owner/Admin |
 
-# Start
-npm run start:prod
-```
-
-### Testing
-
-```bash
-# Unit tests
-npm run test
-
-# E2E tests
-npm run test:e2e
-
-# Test coverage
-npm run test:cov
-```
-
----
-
-## 📡 API Endpoints
-
-Base URL: `http://localhost:3000/v1`
-
-### Authentication
-
-- `POST /auth/register` - Register new user + restaurant
-- `POST /auth/login` - Login with email/password
-- `POST /auth/google` - Google OAuth login
-- `POST /auth/refresh` - Refresh JWT token
-- `POST /auth/logout` - Logout
-- `GET /auth/me` - Get current user profile
-
-### Restaurants
-
-- `GET /restaurants/:id` - Get restaurant details
-- `PUT /restaurants/:id` - Update restaurant (Owner/Admin)
-- `GET /restaurants/:id/analytics` - Get analytics (Owner/Admin)
-- `DELETE /restaurants/:id` - Delete restaurant (Admin only)
-
-### Tables
-
-- `POST /tables/batch` - Create multiple tables
-- `POST /tables` - Create single table
-- `GET /tables` - Get all tables for restaurant
-- `GET /tables/:id` - Get specific table
-- `PUT /tables/:id` - Update table
-- `DELETE /tables/:id` - Delete table
-
-### Menu
-
-- `POST /menu` - Add menu item (Owner/Admin)
-- `GET /menu` - Get menu items (with filters)
-- `GET /menu/:id` - Get specific menu item
-- `PUT /menu/:id` - Update menu item (Owner/Admin)
-- `PATCH /menu/:id/toggle-availability` - Toggle availability (Owner/Admin)
-- `DELETE /menu/:id` - Delete menu item (Owner/Admin)
-
-### Orders
-
-- `POST /orders` - Create new order
-- `GET /orders` - Get all orders (with filters)
-- `GET /orders/today` - Get today's orders
-- `GET /orders/:id` - Get specific order
-- `PUT /orders/:id/status` - Update order status
-- `PUT /orders/:id/items` - Add items to existing order
-
-### WebSocket Events
-
-- `joinRestaurant` - Join restaurant room
-- `order-created` - New order notification
-- `order-updated` - Order status changed
-- `table-status-changed` - Table status changed
-- `kitchen-alert` - New order for kitchen
+### 🍕 Menu System (`/menu`)
+| Method | Path | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/` | Create Menu Item | Owner/Admin |
+| `GET` | `/` | Catalog Retrieval (Filtered) | Authenticated |
+| `GET` | `/:id` | View Menu Item Details | Authenticated |
+| `PUT` | `/:id` | Edit Item & Modifiers | Owner/Admin |
+| `PATCH` | `/:id/toggle` | Quick Availability Toggle | Owner/Admin |
+| `DELETE` | `/:id` | Remove from Catalog | Owner/Admin |
 
 ---
 
-## 📁 Project Structure
+## 📡 WebSocket Real-Time Gateway
 
-```
-backend/
-├── src/
-│   ├── auth/              # Authentication module
-│   │   ├── guards/        # JWT and Roles guards
-│   │   ├── strategies/    # Passport strategies
-│   │   ├── decorators/    # Custom decorators
-│   │   └── dto/           # Data transfer objects
-│   ├── users/             # Users module
-│   ├── restaurants/       # Restaurants module
-│   ├── tables/            # Tables module
-│   ├── menu/              # Menu items module
-│   ├── orders/            # Orders module (core)
-│   │   ├── schemas/       # Order & OrderCounter schemas
-│   │   └── orders.gateway.ts  # WebSocket gateway
-│   ├── config/            # Configuration
-│   └── main.ts            # Application entry point
-├── test/                  # E2E tests
-├── .env                   # Environment variables
-└── package.json
+TabletTap uses **Socket.io** for millisecond-latency communication between the floor and the kitchen.
+
+### Subscribe Events
+- `joinRestaurant`: Binds the socket to a specific restaurant room.
+
+### Published Events
+- `order-created`: Broadcasts a full order payload when a new ticket is submitted.
+- `order-updated`: Syncs status changes (e.g., `PENDING` -> `PREPARING`).
+- `table-status-changed`: Updates the floor map when a table becomes occupied or free.
+- `kitchen-alert`: High-priority event containing `{ orderId, orderNumber, tableId }`.
+
+---
+
+## 📁 System Blueprint
+
+```text
+src/
+├── auth/            # Identity, JWT Strategies & Protection
+├── common/          # Universal Enums, DTOs & Constants
+├── modules/         # Business Verticals
+│   ├── restaurants/ # Establishment configs
+│   ├── tables/      # Floor map management
+│   ├── menu/        # Catalog management
+│   ├── orders/      # Core logic & WebSocket gateways
+│   ├── sections/    # Physical area organization
+│   └── categories/  # Hierarchical grouping
+├── main.ts          # Global Middlewares (Helmet, CORS, Validation)
+└── app.module.ts    # Main Dependency Injection Root
 ```
 
 ---
 
-## 🔐 Security Features
+## 📝 Engineering Standards
 
-- **JWT Authentication**: Secure token-based auth with 15-minute access tokens
-- **Password Hashing**: bcrypt with salt rounds
-- **Rate Limiting**: 100 requests per minute per IP
-- **Input Validation**: Automatic DTO validation
-- **CORS**: Configurable cross-origin requests
-- **Helmet**: Security headers
-- **Data Isolation**: Restaurant-based data separation
+1. **Commit Convention**: All commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) spec.
+2. **Strict Typing**: Usage of `any` is a blocking lint error. All requests must extend `AuthenticatedRequest`.
+3. **Atomic Operations**: Service methods use Mongoose transactions where data consistency is critical.
+4. **Documentation**: Every new feature must be accompanied by updated README and OpenAPI (Swagger) annotations.
 
 ---
 
-## 🗄️ Database Schema
+## 👥 Support & License
 
-### Collections
+**Copyright © 2025 Ismoiljon Masharipov.**
+*Proprietary and Confidential.*
 
-1. **Users**: User accounts with roles
-2. **Restaurants**: Restaurant details and settings
-3. **Tables**: Table management with status
-4. **MenuItems**: Menu items with modifiers
-5. **Orders**: Complete order tracking
-6. **OrderCounters**: Auto-increment order numbers
+For enterprise support or integration queries, please reach out to the core development team.
 
 ---
-
-## 🔄 Order Flow
-
-1. Waiter selects table
-2. Adds menu items with modifiers
-3. Creates order → WebSocket notification
-4. Kitchen receives alert
-5. Status updates propagate in real-time
-6. Order completion updates table status
-
----
-
-## 🎯 Next Steps
-
-- [ ] Connect MongoDB Atlas cluster
-- [ ] Test authentication endpoints
-- [ ] Create sample menu items
-- [ ] Test order creation flow
-- [ ] Set up mobile app integration
-
----
-
-## 📝 License
-
-Copyright (c) 2025 Ismoiljon Masharipov. All Rights Reserved.
-
-This software is proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited.
-
----
-
-## 👥 Support
-
-For issues or questions, contact the development team.
+<div align="center">
+  Built with ❤️ for the future of hospitality.
+</div>

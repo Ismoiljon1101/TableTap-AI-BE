@@ -19,7 +19,10 @@ export class SectionsService {
     }
 
     async findAll(restaurantId: string | Types.ObjectId): Promise<SectionDocument[]> {
-        return this.sectionModel.find({ restaurantId }).exec();
+        const rid = typeof restaurantId === 'string' ? new Types.ObjectId(restaurantId) : restaurantId;
+        const sections = await this.sectionModel.find({ restaurantId: rid }).exec();
+        console.log(`[SectionsService] Found ${sections.length} sections for restaurant: ${rid}`);
+        return sections;
     }
 
     async findOne(id: string): Promise<SectionDocument | null> {
