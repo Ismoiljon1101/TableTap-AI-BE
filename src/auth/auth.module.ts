@@ -20,7 +20,7 @@ import { Restaurant, RestaurantSchema } from '../restaurants/schemas/restaurant.
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
                 secret: configService.get<string>('jwt.secret'),
-                signOptions: { expiresIn: '15m' },
+                signOptions: { expiresIn: '7d' },
             }),
             inject: [ConfigService],
         }),
