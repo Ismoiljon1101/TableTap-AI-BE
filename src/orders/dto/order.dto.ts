@@ -63,6 +63,13 @@ export class CreateOrderDto {
     items!: OrderItemDto[];
 }
 
+export class UpdateOrderDto {
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => OrderItemDto)
+    items!: OrderItemDto[];
+}
+
 export class UpdateOrderStatusDto {
     @IsEnum(OrderStatus)
     status!: OrderStatus;

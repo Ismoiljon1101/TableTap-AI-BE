@@ -44,8 +44,8 @@ export class Table {
     @Prop({ default: 0 })
     rotation!: number;
 
-    @Prop({ type: SchemaTypes.Mixed, ref: 'Section' })
-    section!: Types.ObjectId | string;
+    @Prop({ type: Types.ObjectId, ref: 'Section', required: false })
+    section?: Types.ObjectId;
 
     /** Width in grid units. 1 unit = CELL_SIZE_PX pixels on the canvas. */
     @Prop({ default: 2 })

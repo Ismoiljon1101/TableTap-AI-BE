@@ -34,9 +34,7 @@ export class TablesController {
     @Get()
     @HttpCode(HttpStatus.OK)
     async findAll(@Req() req: AuthenticatedRequest) {
-        const rid = req.user.restaurantId;
-        console.log(`[TablesController] GET /tables - User: ${req.user.email}, Restaurant: ${rid}`);
-        return this.tablesService.findAll(rid);
+        return this.tablesService.findAll(req.user.restaurantId);
     }
 
     @Get(':id')

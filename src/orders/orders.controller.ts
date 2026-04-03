@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Param, Body, Query, UseGuards, Req, HttpSta
 import { OrdersService } from './orders.service';
 import { OrdersGateway } from './orders.gateway';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CreateOrderDto, UpdateOrderStatusDto, AddOrderItemsDto } from './dto/order.dto';
+import { CreateOrderDto, UpdateOrderStatusDto, AddOrderItemsDto, UpdateOrderDto } from './dto/order.dto';
 import { OrderStatus } from './schemas/order.schema';
 import { TablesService } from '../tables/tables.service';
 import { TableStatus } from '../tables/schemas/table.schema';
@@ -43,8 +43,8 @@ export class OrdersController {
             );
 
             // Emit real-time event
-            this.ordersGateway.emitOrderCreated(req.user.restaurantId, order);
-            this.ordersGateway.emitKitchenAlert(req.user.restaurantId, {
+            this.ordersGateway.emitOrderCreated(req.user.restaurantId.toString(), order);
+            this.ordersGateway.emitKitchenAlert(req.user.restaurantId.toString(), {
                 orderId: order._id,
                 orderNumber: order.orderNumber,
                 tableId: order.tableId,
@@ -117,7 +117,7 @@ export class OrdersController {
 
             if (order) {
                 // Emit real-time event
-                this.ordersGateway.emitOrderUpdated(req.user.restaurantId, order);
+                this.ordersGateway.emitOrderUpdated(req.user.restaurantId.toString(), order);
 
                 // If order is served, update table status
                 if (updateOrderStatusDto.status === OrderStatus.SERVED) {
@@ -143,12 +143,32 @@ export class OrdersController {
             const order = await this.ordersService.addItems(id, addOrderItemsDto.items);
 
             if (order) {
-                this.ordersGateway.emitOrderUpdated(req.user.restaurantId, order);
+                this.ordersGateway.emitOrderUpdated(req.user.restaurantId.toString(), order);
             }
 
             return order;
         } catch (error) {
             console.error('Add items to order error:', error);
+            throw error;
+        }
+    }
+
+    @Put(':id')
+    @HttpCode(HttpStatus.OK)
+    async update(
+        @Param('id') id: string,
+        @Body() updateOrderDto: UpdateOrderDto,
+        @Req() req: AuthenticatedRequest,
+    ) {
+        try {
+            console.log(`📝 Updating order ${id} with ${updateOrderDto.items.length} items`);
+            const order = await this.ordersService.update(id, updateOrderDto);
+            if (order) {
+                this.ordersGateway.emitOrderUpdated(req.user.restaurantId.toString(), order);
+            }
+            return order;
+        } catch (error) {
+            console.error('Update order error:', error);
             throw error;
         }
     }

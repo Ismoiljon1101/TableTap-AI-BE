@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
+import { toObjectId } from '../libs/config';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,7 @@ export class UsersService {
     }
 
     async findById(id: string | Types.ObjectId): Promise<UserDocument | null> {
-        return this.userModel.findById(id).exec();
+        return this.userModel.findById(toObjectId(id)).exec();
     }
 
     async findByEmail(email: string): Promise<UserDocument | null> {
@@ -27,17 +28,18 @@ export class UsersService {
     }
 
     async findByRestaurant(restaurantId: string | Types.ObjectId): Promise<UserDocument[]> {
-        return this.userModel.find({ restaurantId }).exec();
+        const rid = toObjectId(restaurantId);
+        return this.userModel.find({ restaurantId: rid }).exec();
     }
 
     async update(id: string | Types.ObjectId, updateData: Partial<User>): Promise<UserDocument | null> {
         return this.userModel
-            .findByIdAndUpdate(id, updateData, { new: true })
+            .findByIdAndUpdate(toObjectId(id), updateData, { new: true })
             .exec();
     }
 
     async delete(id: string | Types.ObjectId): Promise<boolean> {
-        const result = await this.userModel.findByIdAndDelete(id).exec();
+        const result = await this.userModel.findByIdAndDelete(toObjectId(id)).exec();
         return !!result;
     }
 }

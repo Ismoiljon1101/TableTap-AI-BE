@@ -8,6 +8,7 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import { Restaurant, RestaurantDocument } from '../restaurants/schemas/restaurant.schema';
 import { RegisterDto, LoginDto, GoogleAuthDto } from './dto/auth.dto';
 import { UserRole } from '../libs/enums';
+import { toObjectId } from '../libs/config';
 
 @Injectable()
 export class AuthService {
@@ -53,7 +54,7 @@ export class AuthService {
             }
 
             // Find existing restaurant
-            restaurant = await this.restaurantModel.findById(restaurantId);
+            restaurant = await this.restaurantModel.findById(toObjectId(restaurantId));
             if (!restaurant) {
                 throw new UnauthorizedException('Restaurant not found');
             }
@@ -88,18 +89,26 @@ export class AuthService {
 
     async login(loginDto: LoginDto) {
         const { email, password } = loginDto;
+        console.log(`[DEBUG] Login attempt for email: ${email}`);
 
         const user = await this.usersService.findByEmail(email);
-        if (!user || !user.passwordHash) {
+        if (!user) {
+            console.warn(`[DEBUG] User not found for email: ${email}`);
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        if (!user.passwordHash) {
+            console.warn(`[DEBUG] User ${email} has no password hash set.`);
             throw new UnauthorizedException('Invalid credentials');
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
         if (!isPasswordValid) {
+            console.warn(`[DEBUG] Password mismatch for email: ${email}`);
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        const restaurant = await this.restaurantModel.findById(user.restaurantId);
+        const restaurant = await this.restaurantModel.findById(toObjectId(user.restaurantId));
         const tokens = this.generateTokens(user);
 
         return {
@@ -125,7 +134,7 @@ export class AuthService {
         if (!user) {
             // Create new user and restaurant
             if (restaurantId) {
-                const foundRestaurant = await this.restaurantModel.findById(restaurantId);
+                const foundRestaurant = await this.restaurantModel.findById(toObjectId(restaurantId));
                 if (!foundRestaurant) {
                     throw new UnauthorizedException('Restaurant not found');
                 }
@@ -157,7 +166,7 @@ export class AuthService {
             if (!user.googleId) {
                 await this.usersService.update(user._id, { googleId });
             }
-            const foundRestaurant = await this.restaurantModel.findById(user.restaurantId);
+            const foundRestaurant = await this.restaurantModel.findById(toObjectId(user.restaurantId));
             if (!foundRestaurant) {
                 throw new UnauthorizedException('Restaurant not found');
             }
@@ -174,7 +183,7 @@ export class AuthService {
     }
 
     async refreshToken(userId: string) {
-        const user = await this.usersService.findById(userId);
+        const user = await this.usersService.findById(toObjectId(userId));
         if (!user) {
             throw new UnauthorizedException('User not found');
         }
@@ -202,7 +211,7 @@ export class AuthService {
     }
 
     async validateUser(userId: string): Promise<UserDocument> {
-        const user = await this.usersService.findById(userId);
+        const user = await this.usersService.findById(toObjectId(userId));
         if (!user || !user.isActive) {
             throw new UnauthorizedException('User not found or inactive');
         }

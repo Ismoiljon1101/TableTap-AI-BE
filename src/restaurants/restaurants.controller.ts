@@ -16,7 +16,7 @@ export class RestaurantsController {
     async getRestaurant(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
         try {
             // Ensure user can only access their own restaurant
-            if (req.user.restaurantId !== id && req.user.role !== UserRole.ADMIN) {
+            if (req.user.restaurantId.toString() !== id && req.user.role !== UserRole.ADMIN) {
                 throw new ForbiddenException('Unauthorized access to restaurant');
             }
             return await this.restaurantsService.findById(id);
@@ -35,7 +35,7 @@ export class RestaurantsController {
         @Req() req: AuthenticatedRequest,
     ) {
         try {
-            if (req.user.restaurantId !== id && req.user.role !== UserRole.ADMIN) {
+            if (req.user.restaurantId.toString() !== id && req.user.role !== UserRole.ADMIN) {
                 throw new ForbiddenException('Unauthorized access to restaurant');
             }
             return await this.restaurantsService.update(id, updateData);
@@ -50,7 +50,7 @@ export class RestaurantsController {
     @HttpCode(HttpStatus.OK)
     async getAnalytics(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
         try {
-            if (req.user.restaurantId !== id && req.user.role !== UserRole.ADMIN) {
+            if (req.user.restaurantId.toString() !== id && req.user.role !== UserRole.ADMIN) {
                 throw new ForbiddenException('Unauthorized access to analytics');
             }
             return await this.restaurantsService.getAnalytics(id);

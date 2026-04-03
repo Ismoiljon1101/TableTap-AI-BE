@@ -26,11 +26,11 @@ export class CreateTableDto {
 
     @IsString()
     @IsOptional()
-    displayName?: string;
+    displayName?: string | null;
 
     @IsString()
     @IsOptional()
-    code?: string;
+    code?: string | null;
 
     @IsNumber()
     @Max(20)
@@ -48,7 +48,7 @@ export class CreateTableDto {
 
     @IsString()
     @IsOptional()
-    section?: string;
+    section?: string | null;
 
     /** Flat x coordinate (alternative to position.x) */
     @IsNumber()
@@ -89,11 +89,11 @@ export class UpdateTableDto {
 
     @IsString()
     @IsOptional()
-    displayName?: string;
+    displayName?: string | null;
 
     @IsString()
     @IsOptional()
-    code?: string;
+    code?: string | null;
 
     @IsNumber()
     @Max(20)
@@ -111,7 +111,7 @@ export class UpdateTableDto {
 
     @IsString()
     @IsOptional()
-    section?: string;
+    section?: string | null;
 
     @IsNumber()
     @IsOptional()

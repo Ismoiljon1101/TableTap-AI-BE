@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import { Types } from 'mongoose';
 import { UserRole } from '../../libs/enums';
 
 /**
@@ -7,7 +8,7 @@ import { UserRole } from '../../libs/enums';
 export interface JwtPayload {
   userId: string;
   email: string;
-  restaurantId: string;
+  restaurantId: Types.ObjectId;
   role: UserRole;
   nickname?: string;
 }

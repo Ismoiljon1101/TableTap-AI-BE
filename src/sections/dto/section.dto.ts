@@ -7,7 +7,7 @@ export class CreateSectionDto {
 
     @IsString()
     @IsOptional()
-    code?: string;
+    code?: string | null;
 }
 
 export class UpdateSectionDto {
@@ -17,5 +17,5 @@ export class UpdateSectionDto {
 
     @IsString()
     @IsOptional()
-    code?: string;
+    code?: string | null;
 }

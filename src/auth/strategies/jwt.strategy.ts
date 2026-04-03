@@ -5,6 +5,8 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 import { JwtPayload } from '../interfaces/auth.interface';
 
+import { toObjectId } from '../../libs/config';
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
@@ -32,7 +34,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             userId: payload.sub,
             email: payload.email,
             role: payload.role,
-            restaurantId: payload.restaurantId,
+            restaurantId: toObjectId(payload.restaurantId),
             nickname: user.nickname,
         };
     }

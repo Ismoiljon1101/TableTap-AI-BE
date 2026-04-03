@@ -3,8 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Order, OrderDocument, OrderStatus } from './schemas/order.schema';
 import { OrderCounter, OrderCounterDocument } from './schemas/order-counter.schema';
-import { CreateOrderDto } from './dto/order.dto';
+import { CreateOrderDto, UpdateOrderDto, AddOrderItemsDto } from './dto/order.dto';
 import { PrinterService } from '../printer/printer.service';
+import { toObjectId } from '../libs/config';
 
 @Injectable()
 export class OrdersService {
@@ -19,6 +20,9 @@ export class OrdersService {
         waiterId: string | Types.ObjectId,
         createOrderDto: CreateOrderDto,
     ): Promise<OrderDocument> {
+        const rid = toObjectId(restaurantId);
+        const wid = toObjectId(waiterId);
+        
         try {
             const { tableId, items } = createOrderDto;
 
@@ -27,11 +31,8 @@ export class OrdersService {
                 throw new Error('Order must contain at least one item');
             }
 
-            console.log('📊 Processing order with items:', items.length);
-
             // Get next order number
-            const orderNumber = await this.getNextOrderNumber(restaurantId);
-            console.log('🔢 Order number generated:', orderNumber);
+            const orderNumber = await this.getNextOrderNumber(rid);
 
             // Calculate totals
             const subtotal = items.reduce((sum, item) => {
@@ -39,17 +40,14 @@ export class OrdersService {
                 return sum + (item.unitPrice + modifiersTotal) * item.quantity;
             }, 0);
 
-            // Calculate tax (assuming it's stored in restaurant settings, for now use 0)
             const tax = 0;
             const total = subtotal + tax;
 
-            console.log('💰 Calculated totals - Subtotal:', subtotal, 'Tax:', tax, 'Total:', total);
-
             const order = new this.orderModel({
                 orderNumber,
-                restaurantId,
-                tableId,
-                waiterId,
+                restaurantId: rid,
+                tableId: toObjectId(tableId),
+                waiterId: wid,
                 items,
                 subtotal,
                 tax,
@@ -57,10 +55,7 @@ export class OrdersService {
                 status: OrderStatus.PENDING,
             });
 
-
-            console.log('💾 Saving order to database...');
             const savedOrder = await order.save();
-            console.log('✅ Order saved with ID:', savedOrder._id);
 
             // Populate fields for printer
             const populatedOrder = await savedOrder.populate([
@@ -68,9 +63,6 @@ export class OrdersService {
                 { path: 'waiterId', select: 'nickname' }
             ]);
 
-            // ---- SERVER SIDE PRINTING (Simulation) ----
-            // We print AFTER saving to DB. If printing fails, order is still saved.
-            // In production, you might want to log print errors to an alert system.
             this.printerService.printOrder(populatedOrder).catch(err => {
                 console.error('⚠️ Printing failed:', err);
             });
@@ -78,8 +70,6 @@ export class OrdersService {
             return savedOrder;
         } catch (error: any) {
             console.error('❌ Error in OrdersService.create:', error);
-            console.error('Error stack:', error.stack);
-            console.error('DTO received:', JSON.stringify(createOrderDto, null, 2));
             throw error;
         }
     }
@@ -91,14 +81,15 @@ export class OrdersService {
         startDate?: Date,
         endDate?: Date,
     ): Promise<OrderDocument[]> {
-        const filter: any = { restaurantId };
+        const rid = toObjectId(restaurantId);
+        const filter: any = { restaurantId: rid };
 
         if (status) {
             filter.status = status;
         }
 
         if (tableId) {
-            filter.tableId = tableId;
+            filter.tableId = toObjectId(tableId);
         }
 
         if (startDate || endDate) {
@@ -117,7 +108,7 @@ export class OrdersService {
 
     async findById(id: string | Types.ObjectId): Promise<OrderDocument | null> {
         return this.orderModel
-            .findById(id)
+            .findById(toObjectId(id))
             .populate('tableId')
             .populate('waiterId', 'nickname email')
             .exec();
@@ -130,11 +121,30 @@ export class OrdersService {
             updateData.servedAt = new Date();
         }
 
-        return this.orderModel.findByIdAndUpdate(id, updateData, { new: true }).exec();
+        return this.orderModel.findByIdAndUpdate(toObjectId(id), updateData, { new: true }).exec();
+    }
+
+    async update(id: string | Types.ObjectId, updateOrderDto: UpdateOrderDto): Promise<OrderDocument | null> {
+        const order = await this.orderModel.findById(toObjectId(id));
+        if (!order) return null;
+
+        const { items } = updateOrderDto;
+        order.items = items as any;
+
+        // Recalculate totals
+        const subtotal = items.reduce((sum, item) => {
+            const modifiersTotal = item.modifiers?.reduce((modSum, mod) => modSum + mod.price, 0) || 0;
+            return sum + (item.unitPrice + modifiersTotal) * item.quantity;
+        }, 0);
+
+        order.subtotal = subtotal;
+        order.total = subtotal + order.tax;
+
+        return order.save();
     }
 
     async addItems(id: string | Types.ObjectId, newItems: any[]): Promise<OrderDocument | null> {
-        const order = await this.orderModel.findById(id);
+        const order = await this.orderModel.findById(toObjectId(id));
         if (!order) return null;
 
         order.items.push(...newItems);
@@ -152,7 +162,8 @@ export class OrdersService {
     }
 
     private async getNextOrderNumber(restaurantId: string | Types.ObjectId): Promise<number> {
-        const counterId = `${restaurantId.toString()}_order`;
+        const rid = toObjectId(restaurantId);
+        const counterId = `${rid.toString()}_order`;
 
         const counter = await this.orderCounterModel.findByIdAndUpdate(
             counterId,
@@ -163,7 +174,8 @@ export class OrdersService {
         return counter.sequence;
     }
 
-    async getTodayOrders(restaurantId: string) {
+    async getTodayOrders(restaurantId: string | Types.ObjectId) {
+        const rid = toObjectId(restaurantId);
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
 
@@ -172,7 +184,7 @@ export class OrdersService {
 
         return this.orderModel
             .find({
-                restaurantId,
+                restaurantId: rid,
                 createdAt: {
                     $gte: startOfDay,
                     $lte: endOfDay,
@@ -193,4 +205,5 @@ export class OrdersService {
 
         return this.findAll(restaurantId, undefined, undefined, startOfDay, endOfDay);
     }
+
 }
