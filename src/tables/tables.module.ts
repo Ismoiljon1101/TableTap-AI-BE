@@ -5,11 +5,11 @@ import { TablesService } from './tables.service';
 import { TablesController } from './tables.controller';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([{ name: Table.name, schema: TableSchema }]),
-    ],
-    controllers: [TablesController],
-    providers: [TablesService],
-    exports: [TablesService],
+  imports: [
+    MongooseModule.forFeature([{ name: Table.name, schema: TableSchema }]),
+  ],
+  controllers: [TablesController],
+  providers: [TablesService],
+  exports: [TablesService],
 })
-export class TablesModule { }
+export class TablesModule {}

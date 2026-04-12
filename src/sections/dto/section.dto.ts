@@ -1,21 +1,21 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateSectionDto {
-    @IsString()
-    @IsNotEmpty()
-    name!: string;
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
 
-    @IsString()
-    @IsOptional()
-    code?: string | null;
+  @IsString()
+  @IsOptional()
+  code?: string | null;
 }
 
 export class UpdateSectionDto {
-    @IsString()
-    @IsOptional()
-    name?: string;
+  @IsString()
+  @IsOptional()
+  name?: string;
 
-    @IsString()
-    @IsOptional()
-    code?: string | null;
+  @IsString()
+  @IsOptional()
+  code?: string | null;
 }

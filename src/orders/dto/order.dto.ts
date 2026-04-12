@@ -1,91 +1,95 @@
 import {
-    IsNotEmpty,
-    IsMongoId,
-    IsArray,
-    ValidateNested,
-    IsString,
-    IsNumber,
-    IsEnum,
-    IsOptional,
-    Min,
+  IsNotEmpty,
+  IsMongoId,
+  IsArray,
+  ValidateNested,
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsOptional,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { OrderStatus, OrderItemStatus } from '../schemas/order.schema';
 
 class ItemModifierDto {
-    @IsString()
-    @IsNotEmpty()
-    name!: string;
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
 
-    @IsString()
-    @IsNotEmpty()
-    option!: string;
+  @IsString()
+  @IsNotEmpty()
+  option!: string;
 
-    @IsNumber()
-    @Min(0)
-    price!: number;
+  @IsNumber()
+  @Min(0)
+  price!: number;
 }
 
 export class OrderItemDto {
-    @IsMongoId()
-    menuItemId!: string;
+  @IsMongoId()
+  menuItemId!: string;
 
-    @IsString()
-    @IsNotEmpty()
-    name!: string;
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
 
-    @IsNumber()
-    @Min(1)
-    quantity!: number;
+  @IsNumber()
+  @Min(1)
+  quantity!: number;
 
-    @IsNumber()
-    @Min(0)
-    unitPrice!: number;
+  @IsNumber()
+  @Min(0)
+  unitPrice!: number;
 
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => ItemModifierDto)
-    @IsOptional()
-    modifiers?: ItemModifierDto[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ItemModifierDto)
+  @IsOptional()
+  modifiers?: ItemModifierDto[];
 
-    @IsString()
-    @IsOptional()
-    notes?: string;
+  @IsString()
+  @IsOptional()
+  notes?: string;
 }
 
 export class CreateOrderDto {
-    @IsMongoId()
-    tableId!: string;
+  @IsMongoId()
+  tableId!: string;
 
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => OrderItemDto)
-    items!: OrderItemDto[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OrderItemDto)
+  items!: OrderItemDto[];
 }
 
 export class UpdateOrderDto {
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => OrderItemDto)
-    items!: OrderItemDto[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OrderItemDto)
+  items!: OrderItemDto[];
+
+  @IsOptional()
+  @IsString()
+  baseUpdatedAt?: string;
 }
 
 export class UpdateOrderStatusDto {
-    @IsEnum(OrderStatus)
-    status!: OrderStatus;
+  @IsEnum(OrderStatus)
+  status!: OrderStatus;
 }
 
 export class UpdateOrderItemStatusDto {
-    @IsMongoId()
-    itemId!: string;
+  @IsMongoId()
+  itemId!: string;
 
-    @IsEnum(OrderItemStatus)
-    status!: OrderItemStatus;
+  @IsEnum(OrderItemStatus)
+  status!: OrderItemStatus;
 }
 
 export class AddOrderItemsDto {
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => OrderItemDto)
-    items!: OrderItemDto[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OrderItemDto)
+  items!: OrderItemDto[];
 }

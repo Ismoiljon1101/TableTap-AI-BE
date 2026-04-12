@@ -1,92 +1,91 @@
 import {
-    IsString,
-    IsNotEmpty,
-    IsNumber,
-    IsEnum,
-    IsBoolean,
-    IsOptional,
-    IsArray,
-    ValidateNested,
-    Min,
-    IsMongoId,
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsEnum,
+  IsBoolean,
+  IsOptional,
+  IsArray,
+  ValidateNested,
+  Min,
+  IsMongoId,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-
 class ModifierOptionDto {
-    @IsString()
-    @IsNotEmpty()
-    name!: string;
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
 
-    @IsNumber()
-    @Min(0)
-    price!: number;
+  @IsNumber()
+  @Min(0)
+  price!: number;
 }
 
 class ModifierDto {
-    @IsString()
-    @IsNotEmpty()
-    name!: string;
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
 
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => ModifierOptionDto)
-    options!: ModifierOptionDto[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ModifierOptionDto)
+  options!: ModifierOptionDto[];
 }
 
 export class CreateMenuItemDto {
-    @IsString()
-    @IsNotEmpty()
-    name!: string;
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
 
-    @IsNumber()
-    @Min(0)
-    price!: number;
+  @IsNumber()
+  @Min(0)
+  price!: number;
 
-    @IsMongoId()
-    @IsNotEmpty()
-    category!: string;
+  @IsMongoId()
+  @IsNotEmpty()
+  category!: string;
 
-    @IsBoolean()
-    @IsOptional()
-    isAvailable?: boolean;
+  @IsBoolean()
+  @IsOptional()
+  isAvailable?: boolean;
 
-    @IsBoolean()
-    @IsOptional()
-    isPopular?: boolean;
+  @IsBoolean()
+  @IsOptional()
+  isPopular?: boolean;
 
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => ModifierDto)
-    @IsOptional()
-    modifiers?: ModifierDto[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ModifierDto)
+  @IsOptional()
+  modifiers?: ModifierDto[];
 }
 
 export class UpdateMenuItemDto {
-    @IsString()
-    @IsOptional()
-    name?: string;
+  @IsString()
+  @IsOptional()
+  name?: string;
 
-    @IsNumber()
-    @Min(0)
-    @IsOptional()
-    price?: number;
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  price?: number;
 
-    @IsString()
-    @IsOptional()
-    category?: string;
+  @IsString()
+  @IsOptional()
+  category?: string;
 
-    @IsBoolean()
-    @IsOptional()
-    isAvailable?: boolean;
+  @IsBoolean()
+  @IsOptional()
+  isAvailable?: boolean;
 
-    @IsBoolean()
-    @IsOptional()
-    isPopular?: boolean;
+  @IsBoolean()
+  @IsOptional()
+  isPopular?: boolean;
 
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => ModifierDto)
-    @IsOptional()
-    modifiers?: ModifierDto[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ModifierDto)
+  @IsOptional()
+  modifiers?: ModifierDto[];
 }

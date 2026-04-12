@@ -5,13 +5,13 @@ import { RestaurantsService } from './restaurants.service';
 import { RestaurantsController } from './restaurants.controller';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([
-            { name: Restaurant.name, schema: RestaurantSchema },
-        ]),
-    ],
-    controllers: [RestaurantsController],
-    providers: [RestaurantsService],
-    exports: [RestaurantsService],
+  imports: [
+    MongooseModule.forFeature([
+      { name: Restaurant.name, schema: RestaurantSchema },
+    ]),
+  ],
+  controllers: [RestaurantsController],
+  providers: [RestaurantsService],
+  exports: [RestaurantsService],
 })
-export class RestaurantsModule { }
+export class RestaurantsModule {}

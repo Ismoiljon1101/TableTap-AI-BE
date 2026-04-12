@@ -9,33 +9,38 @@ import { toObjectId } from '../../libs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor(
-        private configService: ConfigService,
-        private authService: AuthService,
-    ) {
-        const secret = configService.get<string>('jwt.secret');
-        if (!secret) {
-            throw new Error('JWT secret is not configured');
-        }
-
-        super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: false,
-            secretOrKey: secret,
-        });
+  constructor(
+    private configService: ConfigService,
+    private authService: AuthService,
+  ) {
+    const secret = configService.get<string>('jwt.secret');
+    if (!secret) {
+      throw new Error('JWT secret is not configured');
     }
 
-    async validate(payload: { sub: string, email: string, role: any, restaurantId: string }): Promise<JwtPayload> {
-        const user = await this.authService.validateUser(payload.sub);
-        if (!user) {
-            throw new UnauthorizedException();
-        }
-        return {
-            userId: payload.sub,
-            email: payload.email,
-            role: payload.role,
-            restaurantId: toObjectId(payload.restaurantId),
-            nickname: user.nickname,
-        };
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: secret,
+    });
+  }
+
+  async validate(payload: {
+    sub: string;
+    email: string;
+    role: any;
+    restaurantId: string;
+  }): Promise<JwtPayload> {
+    const user = await this.authService.validateUser(payload.sub);
+    if (!user) {
+      throw new UnauthorizedException();
     }
+    return {
+      userId: payload.sub,
+      email: payload.email,
+      role: payload.role,
+      restaurantId: toObjectId(payload.restaurantId),
+      nickname: user.nickname,
+    };
+  }
 }
