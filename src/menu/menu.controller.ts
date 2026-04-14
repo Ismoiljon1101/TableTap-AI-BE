@@ -94,7 +94,7 @@ export class MenuController {
   }
 
   @Patch(':id/toggle-availability')
-  @Roles(UserRole.OWNER, UserRole.ADMIN)
+  @Roles(UserRole.OWNER, UserRole.ADMIN, UserRole.WAITER)
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   async toggleAvailability(@Param('id') id: string) {
