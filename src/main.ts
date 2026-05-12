@@ -26,9 +26,23 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  // Enable CORS
+  // Lock CORS to specific origins in production.
+  // Set ALLOWED_ORIGINS in .env as a comma-separated list.
+  // Example: https://tabletap.ismaildev.uz,https://ttb.ismaildev.uz
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
   app.enableCors({
-    origin: true,
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Allow server-to-server requests (no origin header) and listed origins
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: Origin '${origin}' not allowed`));
+      }
+    },
     credentials: true,
   });
 
