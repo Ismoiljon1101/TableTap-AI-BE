@@ -11,6 +11,8 @@ import {
   Req,
   HttpCode,
   HttpStatus,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { TablesService } from './tables.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -19,12 +21,17 @@ import {
   CreateTablesDto,
   UpdateTableDto,
 } from './dto/table.dto';
+import { OrdersGateway } from '../orders/orders.gateway';
 import type { AuthenticatedRequest } from '../auth/interfaces/auth.interface';
 
 @Controller('tables')
 @UseGuards(JwtAuthGuard)
 export class TablesController {
-  constructor(private readonly tablesService: TablesService) {}
+  constructor(
+    private readonly tablesService: TablesService,
+    @Inject(forwardRef(() => OrdersGateway))
+    private readonly ordersGateway: OrdersGateway,
+  ) {}
 
   @Post('batch')
   @HttpCode(HttpStatus.CREATED)
@@ -84,7 +91,13 @@ export class TablesController {
     @Body() updateTableDto: UpdateTableDto,
   ) {
     try {
-      return await this.tablesService.update(id, updateTableDto);
+      const updatedTable = await this.tablesService.update(id, updateTableDto);
+      if (updatedTable) {
+        this.ordersGateway.server
+          .to(updatedTable.restaurantId.toString())
+          .emit('table-status-changed', updatedTable);
+      }
+      return updatedTable;
     } catch (error) {
       console.error('Update table error:', error);
       throw error;
@@ -96,7 +109,13 @@ export class TablesController {
   @HttpCode(HttpStatus.OK)
   async patch(@Param('id') id: string, @Body() updateTableDto: UpdateTableDto) {
     try {
-      return await this.tablesService.update(id, updateTableDto);
+      const updatedTable = await this.tablesService.update(id, updateTableDto);
+      if (updatedTable) {
+        this.ordersGateway.server
+          .to(updatedTable.restaurantId.toString())
+          .emit('table-status-changed', updatedTable);
+      }
+      return updatedTable;
     } catch (error) {
       console.error('Patch table error:', error);
       throw error;

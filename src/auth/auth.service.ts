@@ -220,12 +220,12 @@ export class AuthService {
     };
 
     return {
-      accessToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
-      refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
+      accessToken: this.jwtService.sign(payload, { expiresIn: '30d' }),
+      refreshToken: this.jwtService.sign(payload, { expiresIn: '30d' }),
     };
   }
 
-  private sanitizeUser(user: UserDocument) {
+  public sanitizeUser(user: UserDocument) {
     const { passwordHash, ...sanitized } = user.toObject();
     return sanitized;
   }

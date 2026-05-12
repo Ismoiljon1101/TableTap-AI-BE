@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Order, OrderSchema } from './schemas/order.schema';
 import {
@@ -17,7 +17,7 @@ import { PrinterModule } from '../printer/printer.module';
       { name: Order.name, schema: OrderSchema },
       { name: OrderCounter.name, schema: OrderCounterSchema },
     ]),
-    TablesModule,
+    forwardRef(() => TablesModule),
     PrinterModule,
   ],
   controllers: [OrdersController],

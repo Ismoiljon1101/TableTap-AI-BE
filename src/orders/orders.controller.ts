@@ -12,6 +12,8 @@ import {
   HttpCode,
   ConflictException,
   NotFoundException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersGateway } from './orders.gateway';
@@ -33,6 +35,7 @@ export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
     private readonly ordersGateway: OrdersGateway,
+    @Inject(forwardRef(() => TablesService))
     private readonly tablesService: TablesService,
   ) {}
 
