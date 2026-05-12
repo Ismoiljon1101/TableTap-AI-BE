@@ -17,7 +17,7 @@ class Position {
   y!: number;
 }
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, optimisticConcurrency: true })
 export class Table {
   @Prop({ required: true, trim: true })
   name!: string;

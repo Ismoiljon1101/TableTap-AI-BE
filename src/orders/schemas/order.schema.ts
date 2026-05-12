@@ -66,7 +66,7 @@ class OrderItem {
   isAdditional?: boolean;
 }
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, optimisticConcurrency: true })
 export class Order {
   @Prop({ required: true })
   orderNumber!: number;

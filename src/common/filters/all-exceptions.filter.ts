@@ -18,12 +18,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
 
-    const httpStatus =
+    let httpStatus =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message = (exception as any)?.message || 'Internal server error';
+    let message = (exception as any)?.message || 'Internal server error';
+
+    // Handle Mongoose VersionError (Optimistic Concurrency Control)
+    if ((exception as any)?.name === 'VersionError') {
+      httpStatus = HttpStatus.CONFLICT;
+      message = 'Data has been modified by another user. Please refresh and try again.';
+    }
     const responseBody = {
       statusCode: httpStatus,
       timestamp: new Date().toISOString(),

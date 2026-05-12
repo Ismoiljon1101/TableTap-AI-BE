@@ -3,7 +3,7 @@ import { Document, Types } from 'mongoose';
 
 export type SectionDocument = Section & Document;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, optimisticConcurrency: true })
 export class Section {
   @Prop({ required: true, trim: true })
   name!: string;
