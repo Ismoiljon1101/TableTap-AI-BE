@@ -28,11 +28,12 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   async register(
     @Body() registerDto: RegisterDto,
+    @Req() req: express.Request,
     @Res({ passthrough: true }) res: express.Response,
   ) {
     try {
       const result = await this.authService.register(registerDto);
-      this.setAuthCookies(res, result.accessToken, result.refreshToken);
+      this.setAuthCookies(req, res, result.accessToken, result.refreshToken);
       const { accessToken, refreshToken, ...user } = result;
       return user;
     } catch (error) {
@@ -45,11 +46,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() loginDto: LoginDto,
+    @Req() req: express.Request,
     @Res({ passthrough: true }) res: express.Response,
   ) {
     try {
       const result = await this.authService.login(loginDto);
-      this.setAuthCookies(res, result.accessToken, result.refreshToken);
+      this.setAuthCookies(req, res, result.accessToken, result.refreshToken);
       const { accessToken, refreshToken, ...user } = result;
       return user;
     } catch (error) {
@@ -62,11 +64,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async googleAuth(
     @Body() googleAuthDto: GoogleAuthDto,
+    @Req() req: express.Request,
     @Res({ passthrough: true }) res: express.Response,
   ) {
     try {
       const result = await this.authService.googleAuth(googleAuthDto);
-      this.setAuthCookies(res, result.accessToken, result.refreshToken);
+      this.setAuthCookies(req, res, result.accessToken, result.refreshToken);
       const { accessToken, refreshToken, ...user } = result;
       return user;
     } catch (error) {
@@ -87,7 +90,7 @@ export class AuthController {
 
       const payload = this.jwtService.verify(refreshToken);
       const tokens = await this.authService.refreshToken(payload.sub);
-      this.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+      this.setAuthCookies(req, res, tokens.accessToken, tokens.refreshToken);
       
       return { message: 'Token refreshed' };
     } catch (error) {
@@ -99,9 +102,15 @@ export class AuthController {
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async logout(@Res({ passthrough: true }) res: express.Response) {
-    res.clearCookie('accessToken', { sameSite: 'none', secure: true });
-    res.clearCookie('refreshToken', { sameSite: 'none', secure: true });
+  async logout(
+    @Req() req: express.Request,
+    @Res({ passthrough: true }) res: express.Response
+  ) {
+    const isSecure = req.secure || req.header('x-forwarded-proto') === 'https';
+    const sameSite = isSecure ? 'none' : 'lax';
+    
+    res.clearCookie('accessToken', { sameSite, secure: isSecure });
+    res.clearCookie('refreshToken', { sameSite, secure: isSecure });
     return { message: 'Logged out successfully' };
   }
 
@@ -115,7 +124,7 @@ export class AuthController {
       // Rolling session: Extend cookies on every profile check
       const user = await this.authService.validateUser(req.user.userId);
       const tokens = await this.authService.refreshToken(user._id.toString());
-      this.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+      this.setAuthCookies(req, res, tokens.accessToken, tokens.refreshToken);
       
       return this.authService.sanitizeUser(user);
     } catch (error) {
@@ -124,22 +133,23 @@ export class AuthController {
     }
   }
 
-  private setAuthCookies(res: express.Response, access: string, refresh: string) {
+  private setAuthCookies(req: express.Request, res: express.Response, access: string, refresh: string) {
     const expires = new Date();
     expires.setDate(expires.getDate() + 30); // 30 days rolling
 
     const isProduction = process.env.NODE_ENV === 'production';
+    // CRITICAL: Only use secure: true if we are actually on HTTPS.
+    // Phones on local network (http://192.168.x.x) will REJECT secure cookies.
+    const isSecure = req.secure || req.header('x-forwarded-proto') === 'https';
     
-    // Dev-friendly security: 
-    // Secure cookies require HTTPS. LOCAL DEV needs insecure + lax.
     const cookieOptions = {
       httpOnly: true,
-      secure: isProduction, // false on localhost
-      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax' | 'strict', 
+      secure: isSecure, 
+      sameSite: (isSecure ? 'none' : 'lax') as 'none' | 'lax' | 'strict', 
       expires: expires,
     };
 
-    console.log(`📡 [Cookie] Setting auth cookies: secure=${cookieOptions.secure}, sameSite=${cookieOptions.sameSite}`);
+    console.log(`📡 [Cookie] Setting auth cookies: secure=${cookieOptions.secure}, sameSite=${cookieOptions.sameSite}, isProd=${isProduction}`);
     res.cookie('accessToken', access, cookieOptions);
     res.cookie('refreshToken', refresh, cookieOptions);
   }
