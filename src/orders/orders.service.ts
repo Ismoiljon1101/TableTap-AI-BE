@@ -163,8 +163,22 @@ export class OrdersService {
     const originalItems = [...order.items];
     const { items: newItems } = updateOrderDto;
 
-    // Check availability for new/increased items
-    await this.validateItemsAvailability(newItems);
+    // Smart validation: Only check availability for BRAND NEW items or items where QUANTITY INCREASED
+    const itemsToValidate = newItems.filter((newItem) => {
+      const oldItem = originalItems.find((o) => {
+        const sameMenuId =
+          o.menuItemId.toString() === newItem.menuItemId.toString();
+        const sameModifiers =
+          JSON.stringify(o.modifiers) === JSON.stringify(newItem.modifiers);
+        return sameMenuId && sameModifiers;
+      });
+      // If it's a new line item OR quantity is higher than before, check if it's in stock
+      return !oldItem || newItem.quantity > oldItem.quantity;
+    });
+
+    if (itemsToValidate.length > 0) {
+      await this.validateItemsAvailability(itemsToValidate);
+    }
 
     // 1. Process existing and new items
     const processedItems = newItems.map((newItem) => {
@@ -333,6 +347,8 @@ export class OrdersService {
   }
 
   private async validateItemsAvailability(items: any[]): Promise<void> {
+    if (!items || items.length === 0) return;
+
     const menuItemIds = items.map((i) => toObjectId(i.menuItemId));
     const menuItems = await this.menuItemModel.find({
       _id: { $in: menuItemIds },
