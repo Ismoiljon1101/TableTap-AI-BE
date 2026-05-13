@@ -18,6 +18,8 @@ import {
 } from './dto/order.dto';
 import { PrinterService } from '../printer/printer.service';
 import { toObjectId } from '../libs/config';
+import { MenuItem, MenuItemDocument } from '../menu/schemas/menu-item.schema';
+import { ConflictException } from '@nestjs/common';
 
 @Injectable()
 export class OrdersService {
@@ -25,6 +27,7 @@ export class OrdersService {
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     @InjectModel(OrderCounter.name)
     private orderCounterModel: Model<OrderCounterDocument>,
+    @InjectModel(MenuItem.name) private menuItemModel: Model<MenuItemDocument>,
     private printerService: PrinterService,
   ) {}
 
@@ -43,6 +46,9 @@ export class OrdersService {
       if (!items || items.length === 0) {
         throw new Error('Order must contain at least one item');
       }
+
+      // Check availability
+      await this.validateItemsAvailability(items);
 
       // Get next order number and date
       const { sequence: orderNumber, dateStr: orderDate } =
@@ -157,6 +163,9 @@ export class OrdersService {
     const originalItems = [...order.items];
     const { items: newItems } = updateOrderDto;
 
+    // Check availability for new/increased items
+    await this.validateItemsAvailability(newItems);
+
     // 1. Process existing and new items
     const processedItems = newItems.map((newItem) => {
       const exists = originalItems.find((oldItem) => {
@@ -227,6 +236,9 @@ export class OrdersService {
   ): Promise<OrderDocument | null> {
     const order = await this.orderModel.findById(toObjectId(id));
     if (!order) return null;
+
+    // Check availability
+    await this.validateItemsAvailability(newItems);
 
     order.items.push(...newItems);
 
@@ -318,5 +330,24 @@ export class OrdersService {
       startOfDay,
       endOfDay,
     );
+  }
+
+  private async validateItemsAvailability(items: any[]): Promise<void> {
+    const menuItemIds = items.map((i) => toObjectId(i.menuItemId));
+    const menuItems = await this.menuItemModel.find({
+      _id: { $in: menuItemIds },
+    });
+
+    for (const item of items) {
+      const menuItem = menuItems.find(
+        (mi) => mi._id.toString() === item.menuItemId.toString(),
+      );
+      if (!menuItem) {
+        throw new ConflictException(`Menu item not found: ${item.name}`);
+      }
+      if (!menuItem.isAvailable) {
+        throw new ConflictException(`Item is currently out of stock: ${item.name}`);
+      }
+    }
   }
 }
