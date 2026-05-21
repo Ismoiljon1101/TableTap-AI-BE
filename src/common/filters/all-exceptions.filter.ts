@@ -28,7 +28,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // Handle Mongoose VersionError (Optimistic Concurrency Control)
     if ((exception as any)?.name === 'VersionError') {
       httpStatus = HttpStatus.CONFLICT;
-      message = 'Data has been modified by another user. Please refresh and try again.';
+      message =
+        'Data has been modified by another user. Please refresh and try again.';
     }
     const responseBody = {
       statusCode: httpStatus,

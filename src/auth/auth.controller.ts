@@ -91,7 +91,7 @@ export class AuthController {
       const payload = this.jwtService.verify(refreshToken);
       const tokens = await this.authService.refreshToken(payload.sub);
       this.setAuthCookies(req, res, tokens.accessToken, tokens.refreshToken);
-      
+
       return { message: 'Token refreshed' };
     } catch (error) {
       console.error('Refresh token error:', error);
@@ -104,11 +104,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async logout(
     @Req() req: express.Request,
-    @Res({ passthrough: true }) res: express.Response
+    @Res({ passthrough: true }) res: express.Response,
   ) {
     const isSecure = req.secure || req.header('x-forwarded-proto') === 'https';
     const sameSite = isSecure ? 'none' : 'lax';
-    
+
     res.clearCookie('accessToken', { sameSite, secure: isSecure });
     res.clearCookie('refreshToken', { sameSite, secure: isSecure });
     return { message: 'Logged out successfully' };
@@ -125,7 +125,7 @@ export class AuthController {
       const user = await this.authService.validateUser(req.user.userId);
       const tokens = await this.authService.refreshToken(user._id.toString());
       this.setAuthCookies(req, res, tokens.accessToken, tokens.refreshToken);
-      
+
       return this.authService.sanitizeUser(user);
     } catch (error) {
       console.error('Get profile error:', error);
@@ -133,7 +133,12 @@ export class AuthController {
     }
   }
 
-  private setAuthCookies(req: express.Request, res: express.Response, access: string, refresh: string) {
+  private setAuthCookies(
+    req: express.Request,
+    res: express.Response,
+    access: string,
+    refresh: string,
+  ) {
     const expires = new Date();
     expires.setDate(expires.getDate() + 30); // 30 days rolling
 
@@ -141,15 +146,17 @@ export class AuthController {
     // CRITICAL: Only use secure: true if we are actually on HTTPS.
     // Phones on local network (http://192.168.x.x) will REJECT secure cookies.
     const isSecure = req.secure || req.header('x-forwarded-proto') === 'https';
-    
+
     const cookieOptions = {
       httpOnly: true,
-      secure: isSecure, 
-      sameSite: (isSecure ? 'none' : 'lax') as 'none' | 'lax' | 'strict', 
+      secure: isSecure,
+      sameSite: (isSecure ? 'none' : 'lax') as 'none' | 'lax' | 'strict',
       expires: expires,
     };
 
-    console.log(`📡 [Cookie] Setting auth cookies: secure=${cookieOptions.secure}, sameSite=${cookieOptions.sameSite}, isProd=${isProduction}`);
+    console.log(
+      `📡 [Cookie] Setting auth cookies: secure=${cookieOptions.secure}, sameSite=${cookieOptions.sameSite}, isProd=${isProduction}`,
+    );
     res.cookie('accessToken', access, cookieOptions);
     res.cookie('refreshToken', refresh, cookieOptions);
   }

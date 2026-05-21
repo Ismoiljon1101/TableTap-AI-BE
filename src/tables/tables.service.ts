@@ -113,12 +113,18 @@ export class TablesService {
     status: TableStatus,
     currentOrderId?: Types.ObjectId,
   ): Promise<TableDocument | null> {
+    const updateObj: {
+      status: TableStatus;
+      currentOrderId?: Types.ObjectId | null;
+    } = { status };
+    if (status === TableStatus.AVAILABLE) {
+      updateObj.currentOrderId = null;
+    } else if (currentOrderId !== undefined) {
+      updateObj.currentOrderId = currentOrderId;
+    }
+
     return this.tableModel
-      .findByIdAndUpdate(
-        toObjectId(id),
-        { status, currentOrderId },
-        { new: true },
-      )
+      .findByIdAndUpdate(toObjectId(id), updateObj, { new: true })
       .exec();
   }
 

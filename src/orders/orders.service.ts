@@ -362,7 +362,9 @@ export class OrdersService {
         throw new ConflictException(`Menu item not found: ${item.name}`);
       }
       if (!menuItem.isAvailable) {
-        throw new ConflictException(`Item is currently out of stock: ${item.name}`);
+        throw new ConflictException(
+          `Item is currently out of stock: ${item.name}`,
+        );
       }
     }
   }
